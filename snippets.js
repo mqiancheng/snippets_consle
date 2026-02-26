@@ -11,7 +11,7 @@ let tgName = 'aHR0cHM6Ly90Lm1l';
 let ghName = 'aHR0cHM6Ly9naXRodWIuY29t';     
 let bName = 'aHR0cHM6Ly9nb29nbGUuY29t';      
 
-// --- 协议必要变量 ---
+// --- 协议必要变量（非必要不修改） ---
 let p64 = false; 
 let p64DnUrl = atob('aHR0cHM6Ly8xLjEuMS4xL2Rucy1xdWVyeQ==');
 let p64Prefix = atob('MjYwMjpmYzU5OmIwOjY0Ojo=');
@@ -21,7 +21,7 @@ let pDomain = [];
 let p64Domain = [];
 
 // --- 远程库配置 (核心配置项，githb)---
-const secretUrl = atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL21xaWFuY2hlbmcvcHVibGljL3JlZnMvaGVhZHMvbWFpbi9waXAudHh0');
+const secretUrl = atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL21xaWFuY2hlbmcvc25pcHBldHNfY29uc2xlL3JlZnMvaGVhZHMvbWFpbi9waXAudHh0');
 
 // --- 内部状态 ---
 let cachedIPs = [];
