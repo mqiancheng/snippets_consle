@@ -1265,9 +1265,10 @@ function cleanLines(str) {
 
 /** -------------------Home page-------------------------------- */
 async function getSettingHtml(host) {
-const title = decodeBase64Utf8(fileName);
+    const title = decodeBase64Utf8(fileName);
     const fullTitle = title + '-自定义设置';
 
+    // 注意：下面的所有 HTML 必须在 return `...` 这一对反引号内部
     return `
     <html>
     <head>
@@ -1285,267 +1286,62 @@ const title = decodeBase64Utf8(fileName);
             --text-dark: #f0f0f0;
             --border-light: #ddd;
             --border-dark: #444;
-            --link-bg: #f0f0f0;
-            --link-bg-dark: #3a3a4a;
-            --link-color: #111;
         }
-
-        body {
-            font-family: "Segoe UI", Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: var(--bg-light);
-            color: var(--text-light);
-            display: flex;
-            justify-content: center;
-            padding: 10px 0;
-            transition: background 0.5s, color 0.5s;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: var(--bg-dark);
-                color: var(--text-dark);
-            }
-        }
-
-        .container {
-            width: 90%;
-            max-width: 650px;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 14px;
-            cursor: pointer;
-            transition: color 0.3s, transform 0.2s;
-        }
-
-        .back-btn:hover {
-            color: var(--primary-hover);
-            transform: translateX(-2px);
-        }
-
-        .navbar-right a {
-            margin-left: 12px;
-            text-decoration: none;
-            color: var(--primary);
-            font-weight: 500;
-            transition: color 0.3s;
-            font-size: 14px;
-        }
-
-        .navbar-right a:hover {
-            color: var(--primary-hover);
-        }
-
-        form, .proxy-card {
-            background: var(--card-bg-light);
-            padding: 15px 15px;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-            transition: background 0.5s, box-shadow 0.3s;
-            margin-bottom: 20px;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            form, .proxy-card {
-                background: var(--card-bg-dark);
-                box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-            }
-        }
-
-        label {
-            display: block;
-            margin-top: 10px;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 8px 10px;
-            margin-top: 5px;
-            border: 1px solid var(--border-light);
-            border-radius: 6px;
-            font-size: 13px;
-            box-sizing: border-box;
-            transition: border-color 0.3s, background 0.3s;
-            font-family: inherit;
-        }
-
-        textarea {
-            height: 80px;
-            resize: vertical;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: #f9faff;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            input, select, textarea {
-                background: #3a3a4a;
-                border: 1px solid var(--border-dark);
-                color: var(--text-dark);
-            }
-        }
-
-        .form-title {
-            text-align: center;
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--primary);
-            margin: 0 0 10px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 4px;
-        }
-
-        #generatedLink {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--link-bg);
-            color: var(--link-color);
-            font-size: 13px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            margin-bottom: 6px;
-            word-break: break-all;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            #generatedLink {
-                background: var(--link-bg-dark);
-                color: #fff;
-            }
-        }
-
-        #generatedLink button {
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            padding: 2px 6px;
-            font-size: 12px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button.save-btn {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px;
-            font-size: 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.3s;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        button.save-btn:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .proxy-card {
-            border: 1px solid #ff9800;
-            background: #fffdf9 !important;
-        }
-        
-        @media (prefers-color-scheme: dark) {
-            .proxy-card {
-                border: 1px solid #ff9800;
-                background: #2d2a25 !important;
-            }
-        }
-
-        .error-msg {
-            color: #e74c3c;
-            font-size: 12px;
-            margin-top: 2px;
-        }
+        body { font-family: "Segoe UI", sans-serif; background: var(--bg-light); color: var(--text-light); display: flex; justify-content: center; padding: 20px 0; margin:0; }
+        @media (prefers-color-scheme: dark) { body { background: var(--bg-dark); color: var(--text-dark); } }
+        .container { width: 90%; max-width: 650px; }
+        .navbar { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .back-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: bold; }
+        form, .proxy-card { background: var(--card-bg-light); padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        @media (prefers-color-scheme: dark) { form, .proxy-card { background: var(--card-bg-dark); } }
+        .proxy-card { border: 1px solid #ff9800; }
+        h2, h3 { color: var(--primary); margin-top: 0; text-align: center; }
+        label { display: block; margin-top: 10px; font-weight: 600; font-size: 13px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid var(--border-light); border-radius: 6px; box-sizing: border-box; background: inherit; color: inherit; }
+        .save-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        #generatedLink { background: #eee; padding: 10px; border-radius: 6px; margin-top: 10px; word-break: break-all; display: none; justify-content: space-between; align-items: center; }
+        @media (prefers-color-scheme: dark) { #generatedLink { background: #333; } }
     </style>
     </head>
     <body>
     <div class="container">
         <div class="navbar">
-            <div class="navbar-left">
-                <button class="back-btn" onclick="goHome()">🏠 返回主页</button>
-            </div>
+            <button class="back-btn" onclick="goHome()">🏠 返回主页</button>
             <div class="navbar-right">
-                <a href="https://youtube.com/@am_clubs" target="_blank">🎬 YouTube</a>
-                <a href="https://t.me/am_clubs" target="_blank">💬 Telegram</a>
+                <a href="https://t.me/am_clubs" target="_blank" style="color:var(--primary);text-decoration:none;">💬 Telegram</a>
             </div>
         </div>
 
         <div class="proxy-card">
-            <h3 class="form-title" style="color: #e65100;">🛠️ Snippets 动态反代 IP 管理</h3>
-            <p style="font-size: 12px; color: #666; text-align: center; margin-bottom: 5px;">IP 将实时同步给 Snippets 脚本。一行一个。</p>
+            <h3 style="color: #e65100;">🛠️ Snippets 动态反代 IP 管理</h3>
+            <p style="font-size: 12px; opacity: 0.8;">在此输入 IP（一行一个），同步后 Snippets 脚本会自动更新。</p>
             <textarea id="proxyInput" placeholder="例如: 13.230.34.30:443"></textarea>
             <button type="button" class="save-btn" id="btnP" style="background:#ff9800;" onclick="saveProxy()">同步到 Snippets</button>
         </div>
 
         <form id="configForm">
-            <h2 class="form-title"><span class="icon">⚙️</span> 自定义设置</h2>
-            <div id="generatedLink" style="display:none;">
+            <h2>⚙️ 自定义生成设置</h2>
+            <div id="generatedLink">
                 <span id="linkText"></span>
-                <button type="button" onclick="copyLink()">复制</button>
+                <button type="button" style="background:var(--primary);color:#white;border:none;padding:2px 5px;border-radius:4px;cursor:pointer;" onclick="copyLink()">复制</button>
             </div>
-
             <label>UUID</label>
-            <input type="text" id="UUID" placeholder="必填：UUID" />
-
+            <input type="text" id="UUID" placeholder="请填写您的 UUID" />
             <label>HOST</label>
-            <input type="text" id="HOST" placeholder="必填：节点域名" />
-
-            <label>PROXYIP</label>
-            <input type="text" id="PROXYIP" placeholder="可选：反代IP或域名" />
-
-            <button type="button" class="save-btn" onclick="saveSettings()">💾 生成链接</button>
+            <input type="text" id="HOST" placeholder="请填写您的域名" />
+            <button type="button" class="save-btn" onclick="saveSettings()">💾 生成订阅链接</button>
         </form>
     </div>
 
     <script>
-        function goHome() {
-            window.location.href = '/${id}';
-        }
+        function goHome() { window.location.href = '/${id}'; }
 
-        // --- 逻辑 A: 处理反代 IP 的同步 ---
         async function loadProxy() {
             const path = window.location.pathname.replace('/setting', '/proxyip');
             try {
                 const res = await fetch(path);
-                if (res.ok) {
-                    document.getElementById('proxyInput').value = await res.text();
-                }
-            } catch (e) {
-                console.error('加载失败');
-            }
+                if (res.ok) document.getElementById('proxyInput').value = await res.text();
+            } catch (e) {}
         }
         loadProxy();
 
@@ -1553,47 +1349,27 @@ const title = decodeBase64Utf8(fileName);
             const btn = document.getElementById('btnP');
             const val = document.getElementById('proxyInput').value;
             btn.innerText = '正在同步...';
-            btn.disabled = true;
             try {
                 const path = window.location.pathname.replace('/setting', '/setproxy');
                 const res = await fetch(path, { method: 'POST', body: val });
                 if (res.ok) alert('✅ 同步成功！');
-                else alert('❌ 失败，请确认 KV 绑定名为 KV_DATA');
-            } catch(e) {
-                alert('错误: ' + e.message);
-            } finally {
-                btn.innerText = '同步到 Snippets';
-                btn.disabled = false;
-            }
+                else alert('❌ 失败，请检查 KV 绑定名为 KV_DATA');
+            } catch(e) { alert('错误: ' + e.message); }
+            finally { btn.innerText = '同步到 Snippets'; }
         }
 
-        // --- 逻辑 B: 生成订阅链接 ---
         function saveSettings() {
             const uuid = document.getElementById('UUID').value.trim();
             const hostInput = document.getElementById('HOST').value.trim();
-            if (!uuid || !hostInput) {
-                alert('请填写 UUID 和 HOST');
-                return;
-            }
-
-            const params = new URLSearchParams();
-            params.append('UUID', uuid);
-            params.append('HOST', hostInput);
-            const proxyip = document.getElementById('PROXYIP').value.trim();
-            if (proxyip) params.append('PROXYIP', proxyip);
-
-            const link = window.location.origin + '/${id}?sub&' + params.toString();
-            const linkDiv = document.getElementById('generatedLink');
-            const linkText = document.getElementById('linkText');
-            linkText.textContent = link;
-            linkDiv.style.display = 'flex';
+            if (!uuid || !hostInput) { alert('请填写完整'); return; }
+            const link = window.location.origin + '/${id}?sub&UUID=' + uuid + '&HOST=' + hostInput;
+            document.getElementById('linkText').textContent = link;
+            document.getElementById('generatedLink').style.display = 'flex';
         }
 
         function copyLink() {
-            const linkText = document.getElementById('linkText').textContent;
-            navigator.clipboard.writeText(linkText).then(() => {
-                alert('链接已复制');
-            });
+            const text = document.getElementById('linkText').textContent;
+            navigator.clipboard.writeText(text).then(() => alert('已复制'));
         }
     </script>
     </body>
