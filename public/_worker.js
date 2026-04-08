@@ -5,179 +5,503 @@
  * BLog     : https://amclubss.com
  */
 
-let id = atob('ZWM4NzJkOGYtNzJiMC00YTA0LWI2MTItMDMyN2Q4NWUxOGVk');
+let id = base64Decode('ZWM4NzJkOGYtNzJiMC00YTA0LWI2MTItMDMyN2Q4NWUxOGVk');
+let uuid;
+let host;
 
-let paddrs = [
-    atob('cHJveHlpcC5hbWNsdWJzLmNhbWR2ci5vcmc='),
-    atob('cHJveHlpcC5hbWNsdWJzLmtvem93LmNvbQ==')
+//let paddr;
+
+let s5 = '';
+let socks5Enable = false;
+let parsedSocks5 = {};
+
+let ipLocal = [
+    '13.230.34.30:443'
 ];
-let paddrDefaul = paddrs[Math.floor(Math.random() * paddrs.length)];
-let pnumDefaul = atob('NDQz');
-let pDomainDefaul = [];
 
-let p64Defaul = false;
-let p64DnUrl = atob('aHR0cHM6Ly8xLjEuMS4xL2Rucy1xdWVyeQ==');
-let p64PrefixDefaul = atob('MjYwMjpmYzU5OmIwOjY0Ojo=');
-let p64DomainDefaul = [];
+const defaultIpUrlTxt = base64Decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVsL21haW4vZXhhbXBsZS9pcHY0LnR4dA==');
+let randomNum = 1;
+let ipUrlTxt = [];
+let ipUrlCsv = [];
+let noTLS = false;
+let sl = 5;
 
-let s5Defaul = '';
-let s5EnableDefaul = false;
-let parsedS5Defaul = {};
+let fakeUserId;
+let fakeHostName;
 
-let durlDefaul = atob('aHR0cHM6Ly9za3kucmV0aGlua2Rucy5jb20vMTotUGZfX19fXzlfOEFfQU1BSWdFOGtNQUJWRERtS09IVEFLZz0=');
-let fname = atob('5pWw5a2X5aWX5Yip');
-const dataTypeTr = 'EBMbCxUX';
-let enableLog = false;
+let isBase64 = true;
+let subConfig = base64Decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2FtY2x1YnMvQUNMNFNTUi9tYWluL0NsYXNoL2NvbmZpZy9BQ0w0U1NSX09ubGluZV9GdWxsX011bHRpTW9kZS5pbmk=');
+let subConverter = base64Decode('dXJsLnYxLm1r');
+let subProtocol = 'https';
 
-let ytName = atob('aHR0cHM6Ly95b3V0dWJlLmNvbS9AYW1fY2x1YnM/c3ViX2NvbmZpcm1hdGlvbj0x');
-let tgName = atob('aHR0cHM6Ly90Lm1lL2FtX2NsdWJz');
-let ghName = atob('aHR0cHM6Ly9naXRodWIuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVs');
-let bName = atob('aHR0cHM6Ly9hbWNsdWJzcy5jb20=');
+let subUpdateTime = 6;
+let timestamp = 4102329600000;
+let total = 99 * 1125899906842624;
+let download = Math.floor(Math.random() * 1099511627776);
+let upload = download;
+let expire = Math.floor(timestamp / 1000);
+
+let nat64 = true;
+let nat64Prefix;
+let nat64Prefixs = [
+    '2602:fc59:b0:64::'
+];
+
+const protTypeBase64 = 'ZG14bGMzTT0=';
+const protTypeBase64Tro = 'ZEhKdmFtRnU=';
+const httpPattern = /^http(s)?:\/\/.+/;
+let network = 'ws';
+let projectName = base64Decode('YW1jbHVicw==');
+let fileName = '5pWw5a2X5aWX5Yip';
+let ytName = base64Decode('aHR0cHM6Ly95b3V0dWJlLmNvbS9AYW1fY2x1YnM/c3ViX2NvbmZpcm1hdGlvbj0x');
+let tgName = base64Decode('aHR0cHM6Ly90Lm1lL2FtX2NsdWJz');
+let ghName = base64Decode('aHR0cHM6Ly9naXRodWIuY29tL2FtY2x1YnMvYW0tY2YtdHVubmVs');
+let bName = base64Decode('aHR0cHM6Ly9hbWNsdWJzcy5jb20=');
 let pName = '5pWw5a2X5aWX5Yip';
+let hostRemark;
+let enableLog = false;
+let enableOpen = true;
 
-import { connect } from 'cloudflare:sockets';
-
-if (!isValidUserId(id)) {
-    throw new Error('id is invalid');
-}
+const DEFAULT_TARGET_COUNT = 512;
+let nipHost = base64Decode('bmlwLmxmcmVlLm9yZw==');
+let extraIp;
+let extraIpProxy;
 
 export default {
-    async fetch(request, env, ctx) {
+    async fetch(request, env) {
         try {
-            let { ID, PADDR, P64, P64PREFIX, S5, D_URL, ENABLE_LOG } = env;
-            const kvCheckResponse = await check_kv(env);
-            let kvData = {};
-            if (!kvCheckResponse) {
-                kvData = await get_kv(env) || {};
-                log(`[fetch]--> kv_id = ${kvData.kv_id}, kv_pDomain = ${JSON.stringify(kvData.pDomain)}, kv_p64Domain = ${JSON.stringify(kvData.kv_p64Domain)}`);
-            }
             const url = new URL(request.url);
-            enableLog = url.searchParams.get('ENABLE_LOG') || ENABLE_LOG || enableLog;
-            id = (kvData.kv_id || ID || id).toLowerCase();
-            log(`[fetch]--> id = ${id}`);
-            const config = await resolveConfig(request, env, kvData);
-
-            if (request.headers.get('Upgrade') === 'websocket') {
-                if (config.prType === xorDe(dataTypeTr, 'datatype')) {
-                    return await websvcExecutorTr(request, config);
-                }
-                return await websvcExecutor(request, config);
-            }
-            switch (url.pathname.toLowerCase()) {
-                case '/': {
-                    return await login(request, env);
-                }
-                case `/${id}/get`: {
-                    return get_kv(env);
-                }
-                case `/${id}/set`: {
-                    return set_kv_data(request, env);
-                }
-                default: {
-                    return Response.redirect(new URL('/', request.url));
-                }
-            }
+            const headers = request.headers;
+            return await mainHandler({ req: request, url, headers, res: null, env });
         } catch (err) {
-            console.error('Error processing request:', err);
-            return new Response(`Error: ${err.message}`, { status: 500 });
+            errorLogs('Worker Error:', err);
+            return new Response('Worker Error: ' + err.message, { status: 500 });
         }
     },
 };
 
+// ======= 主逻辑函数（共用） =======
+async function mainHandler({ req, url, headers, res, env }) {
+    const { ENABLE_LOG, ID, UUID, HOST, SOCKS5, IP_URL, PROXYIP, NAT64, NAT64_PREFIX, HOST_REMARK, PROT_TYPE, RANDOW_NUM, SUB_CONFIG, SUB_CONVERTER, NO_TLS, NIP_HOST, EXTRA_IP, EXTRA_IP_PROXY, ENABLE_OPEN } = env || {};
 
-/** ---------------------tools------------------------------ */
-async function resolveConfig(request, env, kvData) {
-    const url = new URL(request.url);
-    let paddr = url.searchParams.get('PADDR') ?? env.PADDR ?? paddrDefaul;
-    let pnum = pnumDefaul;
-    if (paddr) {
-        const [ip, port] = paddr.split(':');
-        paddr = ip;
-        pnum = port || pnum;
+    const rawHost = headers.get('host') || headers.get('Host') || 'localhost';
+    const userAgent = headers.get('User-Agent') || '';
+    log(`[mainHandler]-->rawHost: ${rawHost}`);
+    const rawEnableLog = url.searchParams.get('ENABLE_LOG') || getEnvVar('ENABLE_LOG', env) || enableLog;
+    enableLog = parseBool(rawEnableLog, enableLog);
+    const rawEnableOpen = getEnvVar('ENABLE_OPEN', env) || enableOpen;
+    enableOpen = parseBool(rawEnableOpen, enableOpen);
+    noTLS = url.searchParams.get('NO_TLS') || getEnvVar('NO_TLS', env) || noTLS;
+
+    id = getEnvVar('ID', env) || ID || id;
+    uuid = url.searchParams.get('UUID') || getEnvVar('UUID', env) || UUID;
+    host = url.searchParams.get('HOST') || getEnvVar('HOST', env) || HOST;
+    log(`[mainHandler]-->id: ${id} uuid: ${uuid} host: ${host}`);
+
+    s5 = url.searchParams.get('SOCKS5') || getEnvVar('SOCKS5', env) || SOCKS5 || s5;
+    parsedSocks5 = await parseSocks5FromUrl(s5, url);
+    if (parsedSocks5) socks5Enable = true;
+
+    let ip_url = url.searchParams.get('IP_URL') || getEnvVar('IP_URL', env) || IP_URL;
+    if (ip_url) {
+        const result = await parseIpUrl(ip_url);
+        ipUrlCsv = result.ipUrlCsvResult;
+        ipUrlTxt = result.ipUrlTxtResult;
     }
-    const rawP64 = url.searchParams.get('P64') ?? env.P64 ?? p64Defaul;
-    const s5 = url.searchParams.get('S5') ?? env.S5 ?? s5Defaul;
-    const parsedS5 = (await requestParserFromUrl(s5, url)) ?? parsedS5Defaul;
-    const s5Enable = parsedS5 && Object.keys(parsedS5).length > 0;
-    let prType = url.searchParams.get(atob('UFJPVF9UWVBF'));
-    if (prType) {
-        prType = prType.toLowerCase();
+    const existing = await loadFromKV(env, decodeBase64Utf8('Y2Zfbm9ybWFsX2lw'));
+    if (existing && existing.trim().length > 0) {
+        ipLocal = existing.split('\n').map(v => v.trim()).filter(v => v);
     }
 
-    const config = {
-        paddr,
-        pnum,
-        pDomain: kvData.kv_pDomain ?? pDomainDefaul,
-        p64: String(rawP64).toLowerCase() === 'true',
-        p64Prefix: url.searchParams.get('P64PREFIX') ?? env.P64PREFIX ?? p64PrefixDefaul,
-        p64Domain: kvData.kv_p64Domain ?? p64DomainDefaul,
-        s5,
-        parsedS5,
-        s5Enable,
-        durl: url.searchParams.get('D_URL') ?? env.D_URL ?? durlDefaul,
-        prType
-    };
-    log(`[config]-->[${Date.now()}]`, JSON.stringify(config));
-    return config;
+    let proxyIPsAll = [];
+    const proxyIPUrl = url.searchParams.get('PROXYIP') || getEnvVar('PROXYIP', env) || PROXYIP;
+    if (proxyIPUrl) {
+        if (httpPattern.test(proxyIPUrl)) {
+            const proxyIpTxt = await addIpText(proxyIPUrl);
+            let ipUrlTxtAndCsv;
+            if (proxyIPUrl.endsWith('.csv')) {
+                ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, null, proxyIpTxt);
+            } else {
+                ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, proxyIpTxt, null);
+            }
+            const uniqueIpTxt = [...new Set([...ipUrlTxtAndCsv.txt, ...ipUrlTxtAndCsv.csv])];
+            proxyIPsAll.push(...uniqueIpTxt);
+        } else {
+            const proxyIPs = await addIpText(proxyIPUrl);
+            proxyIPsAll.push(...proxyIPs);
+        }
+    }
+    const existingProxy = await loadFromKV(env, decodeBase64Utf8('Y2ZfcHJveHlfaXA='));
+    if (existingProxy && existingProxy.trim().length > 0) {
+        const fromKv = existingProxy.split('\n').map(v => v.trim()).filter(v => v).map(v => v.split('#')[0]).map(v => v.trim()).filter(v => v);
+        proxyIPsAll.push(...fromKv);
+    }
+    proxyIPsAll = [...new Set(proxyIPsAll)];
+    // if (proxyIPsAll.length > 0) {
+    //     paddr = proxyIPsAll[Math.floor(Math.random() * proxyIPsAll.length)];
+    // }
+
+    nat64 = url.searchParams.get('NAT64') || getEnvVar('NAT64', env) || NAT64 || nat64;
+    const nat64PrefixUrl = url.searchParams.get('NAT64_PREFIX') || getEnvVar('NAT64_PREFIX', env);
+    if (nat64PrefixUrl) {
+        if (httpPattern.test(nat64PrefixUrl)) {
+            const proxyIpTxt = await addIpText(nat64PrefixUrl);
+            let ipUrlTxtAndCsv;
+            if (nat64PrefixUrl.endsWith('.csv')) {
+                ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, null, proxyIpTxt);
+            } else {
+                ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, proxyIpTxt, null);
+            }
+            const uniqueIpTxt = [...new Set([...ipUrlTxtAndCsv.txt, ...ipUrlTxtAndCsv.csv])];
+            nat64Prefix = uniqueIpTxt[Math.floor(Math.random() * uniqueIpTxt.length)];
+        } else {
+            nat64Prefixs = await addIpText(nat64PrefixUrl);
+            nat64Prefix = nat64Prefixs[Math.floor(Math.random() * nat64Prefixs.length)];
+        }
+    }
+
+    hostRemark = url.searchParams.get('HOST_REMARK') || getEnvVar('HOST_REMARK', env) || hostRemark;
+    let protType = url.searchParams.get('PROT_TYPE') || getEnvVar('PROT_TYPE', env);
+    if (protType) protType = protType.toLowerCase();
+    randomNum = url.searchParams.get('RANDOW_NUM') || getEnvVar('RANDOW_NUM', env) || randomNum;
+    log(`[handler]-->randomNum: ${randomNum}`);
+
+    subConfig = getEnvVar('SUB_CONFIG', env) || SUB_CONFIG || subConfig;
+    subConverter = getEnvVar('SUB_CONVERTER', env) || SUB_CONVERTER || subConverter;
+    let subProtocol, subConverterWithoutProtocol;
+    if (subConverter.startsWith("http://") || subConverter.startsWith("https://")) {
+        [subProtocol, subConverterWithoutProtocol] = subConverter.split("://");
+    } else {
+        [subProtocol, subConverterWithoutProtocol] = [undefined, subConverter];
+    }
+    subConverter = subConverterWithoutProtocol;
+    nipHost = getEnvVar('NIP_HOST', env) || nipHost;
+    extraIp = getEnvVar('EXTRA_IP', env) || extraIp;
+    extraIpProxy = getEnvVar('EXTRA_IP_PROXY', env) || extraIpProxy;
+
+    fakeUserId = await getFakeUserId(uuid);
+    fakeHostName = getFakeHostName(rawHost, noTLS);
+    log(`[handler]-->fakeUserId: ${fakeUserId}`);
+
+    // ---------------- 路由 ----------------
+    if (url.pathname === `/setting` && !enableOpen) {
+        const html = await getSettingHtml(rawHost);
+        return sendResponse(html, userAgent, res);
+    }
+    if (url.pathname === "/login") {
+        const result = await login(req, env, res);
+        return result;
+    }
+    if (url.pathname === `/${id}/setting`) {
+        const html = await getSettingHtml(rawHost);
+        return sendResponse(html, userAgent, res);
+    }
+    if (url.pathname === `/${id}`) {
+        let paddr;
+		if (proxyIPsAll.length > 0) {
+			paddr = proxyIPsAll[Math.floor(Math.random() * proxyIPsAll.length)];
+		}
+        const html = await getConfig(rawHost, uuid, host, paddr, parsedSocks5, userAgent, url, protType, nat64, hostRemark);
+        return sendResponse(html, userAgent, res);
+    }
+    if (url.pathname === `/${fakeUserId}`) {
+        let paddr;
+		if (proxyIPsAll.length > 0) {
+			paddr = proxyIPsAll[Math.floor(Math.random() * proxyIPsAll.length)];
+		}
+        const html = await getConfig(rawHost, uuid, host, paddr, parsedSocks5, 'CF-FAKE-UA', url, protType, nat64, hostRemark);
+        return sendResponse(html, 'CF-FAKE-UA', res);
+    }
+    // ✅
+    if (url.pathname === `/${id}/ips`) {
+        const html = await htmlPage();
+        return sendResponse(html, userAgent, res);
+    }
+    if (url.pathname === '/ipsFetch') {
+        const ipSource = url.searchParams.get('ipSource');
+        const port = url.searchParams.get('port') || '443';
+        nipHost = getNipHost(nipHost);
+        log(`[handler]-->nipHost: ${nipHost}`);
+        let ipData = await loadIpSource(ipSource, port);
+        log('ipData type:', typeof ipData, ipData);
+        if (ipData instanceof Response) {
+            ipData = await ipData.text();
+        }
+        if (Array.isArray(ipData)) {
+            return new Response(JSON.stringify({ ips: ipData.filter(l => l) }), {
+                headers: { 'Content-Type': 'application/json' }
+            })
+        }
+        return new Response(JSON.stringify({ ips: ipData.split('\n').filter(l => l) }), {
+            headers: { 'Content-Type': 'application/json' }
+        })
+    }
+    if (url.pathname === `/${id}/save`) {
+        try {
+            const body = await readJsonBody(req);
+            log("[handler]--> save body: ", body);
+            const { key, items } = body;
+            await saveToKV(env, key, items);
+            return sendResponse(JSON.stringify({ ok: true }), userAgent, res);
+        } catch (e) {
+            return sendResponse(JSON.stringify({ ok: false, error: e.message || String(e) }), userAgent, res, 500);
+        }
+    }
+    if (url.pathname === `/${id}/append`) {
+        try {
+            const body = await readJsonBody(req);
+            const { key, items } = body;
+            await appendToKV(env, key, items);
+            return sendResponse(JSON.stringify({ ok: true }), userAgent, res);
+        } catch (e) {
+            return sendResponse(JSON.stringify({ ok: false, error: e.message || String(e) }), userAgent, res, 500);
+        }
+    }
+    if (url.pathname === `/${id}/load`) {
+        try {
+            let body = {};
+            try {
+                body = await readJsonBody(req);
+            } catch (e) {
+                return sendResponse(JSON.stringify({ ok: false, error: "Invalid JSON body" }), userAgent, res, 400);
+            }
+            if (!body.key) {
+                return sendResponse(JSON.stringify({ ok: false, error: "Missing key" }), userAgent, res, 400);
+            }
+            const value = await loadFromKV(env, body.key);
+            if (!value) {
+                return sendResponse(JSON.stringify({ ok: false, error: "KV key not found" }), userAgent, res, 404);
+            }
+            return sendResponse(JSON.stringify({ ok: true, value }), userAgent, res);
+        } catch (err) {
+            return sendResponse(JSON.stringify({ ok: false, error: err.message }), userAgent, res, 500);
+        }
+    }
+    return login(req, env, res);
 }
 
+/** --------------------- main ------------------------------ */
+function getEnvVar(key, env) {
+    if (env && typeof env[key] !== 'undefined') {
+        return env[key];
+    }
+    if (typeof process !== 'undefined' && process.env && typeof process.env[key] !== 'undefined') {
+        return process.env[key];
+    }
+    return undefined;
+}
+
+function isCloudflareRuntime(env) {
+    const isCFCache = typeof caches !== "undefined" && caches.default;
+    const isCFEnv = env && Object.prototype.toString.call(env) === "[object Object]";
+    const isNotNode = typeof process === "undefined" || !process.release || process.release.name !== "node";
+    if (isCFCache && isCFEnv && isNotNode) {
+        log("[isCloudflareRuntime]--> ✅ Cloudflare Runtime");
+        return true;
+    }
+    log("[isCloudflareRuntime]--> ❌ Vercel/Node Runtime");
+    return false;
+}
+
+function isCloudflareRequest(req) {
+    return typeof Request !== 'undefined' && req instanceof Request;
+}
+
+async function readJsonBody(req) {
+    if (isCloudflareRequest(req)) {
+        return await req.json();
+    }
+    return await new Promise((resolve, reject) => {
+        let raw = '';
+        req.on('data', chunk => raw += chunk);
+        req.on('end', () => {
+            try {
+                resolve(JSON.parse(raw));
+            } catch (e) {
+                reject(new Error('Invalid JSON'));
+            }
+        });
+        req.on('error', reject);
+    });
+}
+
+function parseBool(val, defaultVal = false) {
+    if (val === undefined || val === null) return defaultVal;
+    if (typeof val === 'boolean') return val;
+    if (typeof val === 'string') {
+        return ['1', 'true', 'yes', 'on'].includes(val.toLowerCase());
+    }
+    if (typeof val === 'number') return val === 1;
+    return defaultVal;
+}
+
+/** ---------------------Tools------------------------------ */
 function log(...args) {
-    if (enableLog) console.log(...args);
-}
-
-function error(...args) {
-    if (enableLog) console.error(...args);
-}
-
-function isValidUserId(uuid) {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return uuidRegex.test(uuid);
-}
-
-const byteToHex = [];
-for (let i = 0; i < 256; ++i) {
-    byteToHex.push((i + 256).toString(16).slice(1));
-}
-
-function unsafeStringify(arr, offset = 0) {
-    return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
-}
-
-function stringify(arr, offset = 0) {
-    const uuid = unsafeStringify(arr, offset);
-    if (!isValidUserId(uuid)) {
-        throw TypeError("Stringified ID is invalid");
+    if (!enableLog) {
+        return;
     }
-    return uuid;
-}
-
-function b64ToBuf(base64Str) {
-    if (!base64Str) {
-        return { earlyData: null, error: null };
-    }
+    let prefix = '';
     try {
-        base64Str = base64Str.replace(/-/g, '+').replace(/_/g, '/');
-        const decode = atob(base64Str);
-        const arryBuffer = Uint8Array.from(decode, (c) => c.charCodeAt(0));
-        return { earlyData: arryBuffer.buffer, error: null };
-    } catch (error) {
-        return { earlyData: null, error };
+        // ✅ 判断 Cloudflare Worker 环境
+        if (typeof WebSocketPair !== 'undefined' && typeof addEventListener === 'function' && typeof caches !== 'undefined') {
+            prefix = '[CF]';
+        }
+        // ✅ 判断 Vercel / Node 环境
+        else if (typeof process !== 'undefined' && process.release?.name === 'node') {
+            prefix = '[VC]';
+        }
+        // ✅ 其他未知环境
+        else {
+            prefix = '[SYS]';
+        }
+    } catch (e) {
+        prefix = '[LOG]';
+    }
+    const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
+    console.log(`${prefix} ${timestamp} →`, ...args);
+}
+
+function errorLogs(err, extra = {}) {
+    let prefix = '';
+    try {
+        // 判断 Cloudflare Worker 环境
+        if (typeof WebSocketPair !== 'undefined' && typeof addEventListener === 'function' && typeof caches !== 'undefined') {
+            prefix = '[CF-ERR]';
+        }
+        // 判断 Vercel / Node.js 环境
+        else if (typeof process !== 'undefined' && process.release?.name === 'node') {
+            prefix = '[VC-ERR]';
+        }
+        else {
+            prefix = '[SYS-ERR]';
+        }
+    } catch {
+        prefix = '[ERR]';
+    }
+
+    const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
+    if (err instanceof Error) {
+        console.error(`${prefix} ${timestamp} →`, err.message, '\nStack:', err.stack, extra);
+    } else {
+        console.error(`${prefix} ${timestamp} →`, err, extra);
     }
 }
 
-function decodeBase64Utf8(str) {
-    const bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
-    return new TextDecoder('utf-8').decode(bytes);
+function getHeader(req, name) {
+    try {
+        if (!req || !req.headers) return '';
+        // Edge Headers 
+        if (typeof req.headers.get === 'function') {
+            const v = req.headers.get(name);
+            return (v === undefined || v === null) ? '' : String(v);
+        }
+        // Node.js headers 
+        const v2 = req.headers[name.toLowerCase()];
+        return (v2 === undefined || v2 === null) ? '' : String(v2);
+    } catch (e) {
+        errorLogs('getHeader error:', e);
+        return '';
+    }
 }
 
-function requestParser(s5) {
-    let [latter, former] = s5.split("@").reverse();
+function sendResponse(content, userAgent = '', res = null, status = 200) {
+    if (!status || typeof status !== 'number') status = 200;
+
+    const isMozilla = userAgent.toLowerCase().includes('mozilla');
+    const headers = {
+        "Content-Type": isMozilla ? "text/html;charset=utf-8" : "text/plain;charset=utf-8",
+        "Profile-Update-Interval": `${subUpdateTime}`,
+        "Subscription-Userinfo": `upload=${upload}; download=${download}; total=${total}; expire=${expire}`,
+    };
+
+    if (!isMozilla) {
+        const fileNameAscii = encodeURIComponent(decodeBase64Utf8(fileName));
+        headers["Content-Disposition"] = `attachment; filename=${fileNameAscii}; filename*=gbk''${fileNameAscii}`;
+    }
+
+    // Node / Vercel Serverless
+    if (res) {
+        Object.entries(headers).forEach(([k, v]) => res.setHeader(k, v));
+        if (typeof res.status === 'function') return res.status(status).send(content);
+        if (typeof res.writeHead === 'function') {
+            res.writeHead(status, headers);
+            res.end(content);
+            return;
+        }
+    }
+
+    // Edge / CF Worker / Vercel Edge
+    if (typeof Response !== 'undefined') {
+        return new Response(content, { status, headers });
+    }
+
+    return content;
+}
+
+function base64Encode(input) {
+    try {
+        return Buffer.from(input, 'utf-8').toString('base64');
+    } catch (e) {
+        if (typeof btoa === 'function') {
+            const utf8 = new TextEncoder().encode(input);
+            let binary = '';
+            utf8.forEach(b => binary += String.fromCharCode(b));
+            return btoa(binary);
+        } else {
+            throw new Error('Base64 encode not supported in this environment');
+        }
+    }
+}
+
+function base64Decode(input) {
+    if (typeof atob === 'function') {
+        // Edge Runtime 
+        return atob(input);
+    } else if (typeof Buffer === 'function') {
+        // Node.js
+        return Buffer.from(input, 'base64').toString('utf-8');
+    } else {
+        throw new Error('Base64 decode not supported in this environment');
+    }
+}
+
+function doubleBase64Decode(input) {
+    const first = base64Decode(input);
+    return base64Decode(first);
+}
+
+function getFileType(url) {
+    const baseUrl = url.split('@')[0];
+    const extension = baseUrl.match(/\.(csv|txt)$/i);
+    if (extension) {
+        return extension[1].toLowerCase();
+    } else {
+        return 'txt';
+    }
+}
+
+async function addIpText(envAdd) {
+    var addText = envAdd.replace(/[	|"'\r\n]+/g, ',').replace(/,+/g, ',');
+    //log(addText);
+    if (addText.charAt(0) == ',') {
+        addText = addText.slice(1);
+    }
+    if (addText.charAt(addText.length - 1) == ',') {
+        addText = addText.slice(0, addText.length - 1);
+    }
+    const add = addText.split(',');
+    // log(add);
+    return add;
+}
+
+function socks5Parser(socks5) {
+    let [latter, former] = socks5.split("@").reverse();
     let username, password, hostname, port;
 
     if (former) {
         const formers = former.split(":");
         if (formers.length !== 2) {
-            throw new Error('Invalid S address format: authentication must be in the "username:password" format');
+            throw new Error('Invalid SOCKS address format: authentication must be in the "username:password" format');
         }
         [username, password] = formers;
     }
@@ -185,47 +509,91 @@ function requestParser(s5) {
     const latters = latter.split(":");
     port = Number(latters.pop());
     if (isNaN(port)) {
-        throw new Error('Invalid S address format: port must be a number');
+        throw new Error('Invalid SOCKS address format: port must be a number');
     }
 
     hostname = latters.join(":");
     const isIPv6 = hostname.includes(":") && !/^\[.*\]$/.test(hostname);
     if (isIPv6) {
-        throw new Error('Invalid S address format: IPv6 addresses must be enclosed in brackets, e.g., [2001:db8::1]');
+        throw new Error('Invalid SOCKS address format: IPv6 addresses must be enclosed in brackets, e.g., [2001:db8::1]');
     }
 
+    //log(`socks5Parser-->: username ${username} \n password: ${password} \n hostname: ${hostname} \n port: ${port}`);
     return { username, password, hostname, port };
 }
 
-async function requestParserFromUrl(s5, url) {
-    if (/\/s5?=/.test(url.pathname)) {
-        s5 = url.pathname.split('5=')[1];
+async function parseSocks5FromUrl(socks5, url) {
+    if (/\/socks5?=/.test(url.pathname)) {
+        socks5 = url.pathname.split('5=')[1];
     } else if (/\/socks[5]?:\/\//.test(url.pathname)) {
-        s5 = url.pathname.split('://')[1].split('#')[0];
+        socks5 = url.pathname.split('://')[1].split('#')[0];
     }
 
-    const authIdx = s5.indexOf('@');
+    const authIdx = socks5.indexOf('@');
     if (authIdx !== -1) {
-        let userPassword = s5.substring(0, authIdx);
+        let userPassword = socks5.substring(0, authIdx);
         const base64Regex = /^(?:[A-Z0-9+/]{4})*(?:[A-Z0-9+/]{2}==|[A-Z0-9+/]{3}=)?$/i;
         if (base64Regex.test(userPassword) && !userPassword.includes(':')) {
             userPassword = atob(userPassword);
         }
-        s5 = `${userPassword}@${s5.substring(authIdx + 1)}`;
+        socks5 = `${userPassword}@${socks5.substring(authIdx + 1)}`;
     }
 
-    if (s5) {
+    if (socks5) {
         try {
-            return requestParser(s5);
+            return socks5Parser(socks5);
         } catch (err) {
-            error(err.toString());
+            log(err.toString());
             return null;
         }
     }
     return null;
 }
 
-function xorEn(plain, key) {
+function getRandomItems(arr, count) {
+    if (!Array.isArray(arr)) return [];
+
+    const shuffled = [...arr].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
+async function getFakeUserId(userId) {
+    const date = new Date().toISOString().split('T')[0];
+    const rawString = `${userId}-${date}`;
+
+    const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(rawString));
+    const hashArray = Array.from(new Uint8Array(hashBuffer)).map(b => ('00' + b.toString(16)).slice(-2)).join('');
+
+    return `${hashArray.substring(0, 8)}-${hashArray.substring(8, 12)}-${hashArray.substring(12, 16)}-${hashArray.substring(16, 20)}-${hashArray.substring(20, 32)}`;
+}
+
+function getFakeHostName(host, noTLS) {
+    if (host.includes(".pages.dev")) {
+        return `${fakeHostName}.pages.dev`;
+    } else if (host.includes(".workers.dev") || host.includes("notls") || noTLS === 'true') {
+        return `${fakeHostName}.workers.dev`;
+    }
+    return `${fakeHostName}.xyz`;
+}
+
+function revertFakeInfo(content, userId, hostName) {
+    log(`revertFakeInfo-->: isBase64 ${isBase64} \n content: ${content}`);
+    if (isBase64) {
+        content = base64Decode(content);
+    }
+    content = content.replace(new RegExp(fakeUserId, 'g'), userId).replace(new RegExp(fakeHostName, 'g'), hostName);
+    if (isBase64) {
+        content = base64Encode(content);
+    }
+    return content;
+}
+
+function decodeBase64Utf8(str) {
+    const bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+}
+
+function xEn(plain, key) {
     const encoder = new TextEncoder();
     const p = encoder.encode(plain);
     const k = encoder.encode(key);
@@ -236,7 +604,7 @@ function xorEn(plain, key) {
     return btoa(String.fromCharCode(...out));
 }
 
-function xorDe(b64, key) {
+function xDe(b64, key) {
     const data = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
@@ -248,1582 +616,2266 @@ function xorDe(b64, key) {
     return decoder.decode(out);
 }
 
-function isIpAddress(str) {
-    const ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
-    const ipv6 = /^[0-9a-fA-F:]+$/;
-    return ipv4.test(str) || ipv6.test(str);
-}
-
-async function getDomainToRouteX(addressRemote, portRemote, p64Flag = false, config) {
-    let finalTargetHost = addressRemote;
-    let finalTargetPort = portRemote;
+async function parseIpUrl(ip_url) {
+    const newCsvUrls = [];
+    const newTxtUrls = [];
     try {
-        log(`[getDomainToRouteX]--> paddr=${config.paddr}, p64Prefix=${config.p64Prefix}, addressRemote=${addressRemote}, p64=${config.p64}`);
-        log(`[getDomainToRouteX]--> pDomain=${JSON.stringify(config.pDomain)}, p64Domain=${JSON.stringify(config.p64Domain)}`);
-
-        // if (isIpAddress(addressRemote)) {
-        //     log(`[getDomainToRouteX] Skip DNS resolve because target is IP`);
-        //     return { finalTargetHost, finalTargetPort };
-        // }
-
-        const safeMatch = (domains, target) => {
-            try {
-                return Array.isArray(domains) && domains.some(domain => matchesDomainPattern(target, domain));
-            } catch (e) {
-                log(`[error]--> matchesDomainPattern failed: ${e.message}`);
-                return false;
+        const response = await fetch(ip_url);
+        const text = await response.text();
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const hasHttpLinks = lines.some(line => /^https?:\/\//i.test(line));
+        if (hasHttpLinks) {
+            lines.forEach(u => {
+                if (/^https?:\/\//i.test(u)) {
+                    if (getFileType(u) === 'csv') {
+                        newCsvUrls.push(u);
+                    } else {
+                        newTxtUrls.push(u);
+                    }
+                }
+            });
+        } else {
+            if (getFileType(ip_url) === 'csv') {
+                newCsvUrls.push(ip_url);
+            } else {
+                newTxtUrls.push(ip_url);
             }
-        };
-
-        const resultDomain = safeMatch(config.pDomain, addressRemote);
-        const result64Domain = safeMatch(config.p64Domain, addressRemote);
-        log(`[getDomainToRouteX]--> match pDomain=${resultDomain}, match p64Domain=${result64Domain}, p64Flag=${p64Flag}`);
-
-        if (config.s5Enable) {
-            log(`[getDomainToRouteX]--> s5Enable=true, use remote directly`);
-        } else if (resultDomain) {
-            finalTargetHost = config.paddr;
-            finalTargetPort = config.pnum || portRemote;
-            log(`[getDomainToRouteX]--> Matched pDomain, use paddr=${finalTargetHost}, port=${finalTargetPort}`);
-        } else if (result64Domain || (p64Flag && config.p64)) {
-            try {
-                finalTargetHost = await resolveDomainToRouteX(addressRemote, config);
-                finalTargetPort = portRemote;
-                log(`[getDomainToRouteX]--> Resolved p64Domain via resolveDomainToRouteX: ${finalTargetHost}`);
-            } catch (err) {
-                log(`[retry]--> resolveDomainToRouteX failed: ${err.message}`);
-                finalTargetHost = config.paddr || addressRemote;
-                finalTargetPort = config.pnum || portRemote;
-            }
-        } else if (p64Flag) {
-            finalTargetHost = config.paddr || addressRemote;
-            finalTargetPort = portRemote;
-            log(`[getDomainToRouteX]--> fallback by p64Flag, host=${finalTargetHost}, port=${finalTargetPort}`);
         }
-
-        log(`[getDomainToRouteX]--> Final target: ${finalTargetHost}:${finalTargetPort}`);
-        return { finalTargetHost, finalTargetPort };
+        const ipUrlCsvResult = [...new Set(newCsvUrls)];
+        const ipUrlTxtResult = [...new Set(newTxtUrls)];
+        return { ipUrlCsvResult, ipUrlTxtResult };
     } catch (err) {
-        log(`[fatal]--> getDomainToRouteX failed: ${err.message}`);
-        if (p64Flag) {
-            finalTargetHost = config.paddr || addressRemote;
-            finalTargetPort = portRemote;
-            log(`[fatal-fallback]--> fallback by p64Flag, host=${finalTargetHost}, port=${finalTargetPort}`);
-        }
-        log(`[getDomainToRouteX]--> Final target: ${finalTargetHost}:${finalTargetPort}`);
-        return { finalTargetHost, finalTargetPort };
+        errorLogs('获取 IP_URL 文件内容失败：', err);
+        return { ipUrlCsvResult: [], ipUrlTxtResult: [] };
     }
 }
 
-function matchesDomainPattern(hostname, pattern) {
-    if (!hostname || !pattern) return false;
+/** ---------------------Get data------------------------------ */
+let subParams = ['sub', 'base64', 'b64', 'clash', 'singbox', 'sb'];
+let portSet_http = new Set([80, 8080, 8880, 2052, 2086, 2095, 2082]);
+let portSet_https = new Set([443, 8443, 2053, 2096, 2087, 2083]);
 
-    hostname = hostname.toLowerCase();
-    pattern = pattern.toLowerCase();
-    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
-    const ipv6Regex = /^\[?([a-f0-9:]+)\]?$/i;
-    if (ipv4Regex.test(hostname) || ipv6Regex.test(hostname)) {
+async function getConfig(rawHost, userId, host, proxyIP, parsedSocks5, userAgent, _url, protType, nat64, hostRemark) {
+    log(`------------getConfig------------------`);
+    log(`userId: ${userId} \n host: ${host} \n proxyIP: ${proxyIP} \n userAgent: ${userAgent} \n _url: ${_url} \n protType: ${protType} \n nat64: ${nat64} \n hostRemark: ${hostRemark} `);
+
+    userAgent = userAgent.toLowerCase();
+    let port = 443;
+    if (host.includes('.workers.dev')) {
+        port = 80;
+    }
+
+    if (userAgent.includes('mozilla') && !subParams.some(param => _url.searchParams.has(param))) {
+        if (!protType) {
+            protType = doubleBase64Decode(protTypeBase64);
+        }
+        const [v2, clash] = getConfigLink(userId, host, host, port, host, proxyIP, protType, nat64);
+        return getHtmlRes(rawHost, proxyIP, socks5Enable, parsedSocks5, host, v2, clash);
+    }
+
+    let num = randomNum || 25;
+    if (protType && !randomNum) {
+        num = num * 2;
+    }
+
+    const ipUrlTxtAndCsv = await getIpUrlTxtAndCsv(noTLS, ipUrlTxt, ipUrlCsv, num);
+
+    log(`txt: ${ipUrlTxtAndCsv.txt} \n csv: ${ipUrlTxtAndCsv.csv}`);
+    let content = await getConfigContent(rawHost, userAgent, _url, host, fakeHostName, fakeUserId, noTLS, ipUrlTxtAndCsv.txt, ipUrlTxtAndCsv.csv, protType, nat64, hostRemark, proxyIP);
+
+    return _url.pathname === `/${fakeUserId}` ? content : revertFakeInfo(content, userId, host);
+}
+
+function getHtmlRes(rawHost, proxyIP, socks5Enable, parsedSocks5, host, v2, clash) {
+    const subRemark = `IP_LOCAL/IP_URL`;
+    let proxyIPRemark = `PROXYIP: ${proxyIP}`;
+    if (socks5Enable) {
+        proxyIPRemark = `socks5: ${parsedSocks5.hostname}:${parsedSocks5.port}`;
+    }
+    let remark = `您的订阅节点由设置变量 ${subRemark} 提供, 当前使用反代是${proxyIPRemark}`;
+    if (!proxyIP && !socks5Enable) {
+        remark = `您的订阅节点由设置变量 ${subRemark} 提供, 当前没设置反代, 推荐您设置PROXYIP变量或SOCKS5变量或订阅连接带proxyIP`;
+    }
+    return getConfigHtml(rawHost, remark, v2, clash);
+}
+
+function getConfigLink(uuid, host, address, port, remarks, proxyip, protType, nat64) {
+    const ep = 'none';
+    let pathParm = `&PROT_TYPE=${protType}`;
+    if (proxyip) {
+        pathParm = pathParm + `&PADDR=${proxyip}`;
+    }
+    if (nat64) {
+        pathParm = pathParm + `&P64=${nat64}`;
+    }
+    if (nat64Prefix) {
+        pathParm = pathParm + `&P64PREFIX=${nat64Prefix}`;
+    }
+    if (s5) {
+        pathParm = pathParm + `&S5=${s5}`;
+    }
+    let path = `/?ed=2560` + pathParm;
+    const fp = 'randomized';
+    let tls = ['tls', true];
+    if (host.includes('.workers.dev') || host.includes('pages.dev')) {
+        path = `/${host}${path}`;
+        remarks += ' 请用绑定自定义域名访问再订阅！';
+    }
+
+    const v2 = getv2LinkConfig({ protType, host, uuid, address, port, remarks, ep, path, fp, tls });
+    const clash = getCLinkConfig(protType, host, address, port, uuid, path, tls, fp);
+    return [v2, clash];
+}
+
+function getv2LinkConfig({ protType, host, uuid, address, port, remarks, ep, path, fp, tls }) {
+    log(`------------getv2LinkConfig------------------`);
+    log(`protType: ${protType} \n host: ${host} \n uuid: ${uuid} \n address: ${address} \n port: ${port} \n remarks: ${remarks} \n ep: ${ep} \n path: ${path} \n fp: ${fp} \n tls: ${tls} `);
+
+    let sAndp = `&sni=${host}&fp=${fp}`;
+    if (portSet_http.has(parseInt(port))) {
+        tls = ['', false];
+        sAndp = '';
+    }
+    const k = 'id';
+    const t = xEn(protType, k);
+    const u = xEn(uuid, k);
+    const a = xEn(address, k);
+    const p = xEn(port, k);
+
+    const v2 = `${xDe(t, k)}://${xDe(u, k)}@${xDe(a, k)}:${xDe(p, k)}\u003f\u0065\u006e\u0063\u0072\u0079` + 'p' + `${atob('dGlvbj0=')}${ep}\u0026\u0073\u0065\u0063\u0075\u0072\u0069\u0074\u0079\u003d${tls[0]}&type=${network}&host=${host}&path=${encodeURIComponent(path)}${sAndp}#${encodeURIComponent(remarks)}`;
+    return v2;
+}
+
+function getCLinkConfig(protType, host, address, port, uuid, path, tls, fp) {
+    log(`------------getCLinkConfig------------------`);
+    log(`protType: ${protType} \n host: ${host} \n address: ${address} \n port: ${port} \n uuid: ${uuid} \n path: ${path} \n tls: ${tls} \n fp: ${fp} `);
+    const k = 'idc';
+    const t = xEn(protType, k);
+    const u = xEn(uuid, k);
+    const a = xEn(address, k);
+    const p = xEn(port, k);
+    return `- {type: ${xDe(t, k)}, name: ${host}, server: ${xDe(a, k)}, port: ${xDe(p, k)}, password: ${xDe(u, k)}, network: ${network}, tls: ${tls[1]}, udp: false, sni: ${host}, client-fingerprint: ${fp}, skip-cert-verify: true,  ws-opts: {path: ${path}, headers: {Host: ${host}}}}`;
+}
+
+async function getConfigContent(rawHost, userAgent, _url, host, fakeHostName, fakeUserId, noTLS, ipUrlTxt, ipUrlCsv, protType, nat64, hostRemark, proxyIP) {
+    log(`------------getConfigContent------------------`);
+    const uniqueIpTxt = [...new Set([...ipUrlTxt, ...ipUrlCsv])];
+    let responseBody;
+    log(`[getConfigContent]---> protType: ${protType}`);
+    if (!protType) {
+        protType = doubleBase64Decode(protTypeBase64);
+        const responseBody1 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark, proxyIP);
+        const responseBodyTop = splitNodeData(ipLocal, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark, proxyIP);
+        protType = doubleBase64Decode(protTypeBase64Tro);
+        const responseBody2 = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark, proxyIP);
+        responseBody = [responseBodyTop, responseBody1, responseBody2].join('\n');
+    } else {
+        const responseBodyTop = splitNodeData(ipLocal, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark, proxyIP);
+        responseBody = splitNodeData(uniqueIpTxt, noTLS, fakeHostName, fakeUserId, userAgent, protType, nat64, hostRemark, proxyIP);
+        responseBody = [responseBodyTop, responseBody].join('\n');
+    }
+    responseBody = base64Encode(responseBody);
+
+    if (!userAgent.includes(('CF-FAKE-UA').toLowerCase())) {
+        const safeHost = (rawHost || '').replace(/^https?:\/\//, '');
+        let url = `https://${safeHost}/${fakeUserId}`;
+        log(`[getConfigContent]---> url: ${url}`);
+
+        if (isClashCondition(userAgent, _url)) {
+            isBase64 = false;
+            url = createSubConverterUrl('clash', url, subConfig, subConverter, subProtocol);
+        } else if (isSingboxCondition(userAgent, _url)) {
+            isBase64 = false;
+            url = createSubConverterUrl('singbox', url, subConfig, subConverter, subProtocol);
+        } else {
+            return responseBody;
+        }
+        try {
+            const finalUrl = new URL(url).toString();
+            log(`[getConfigContent] Fetching from: ${finalUrl}`);
+            const response = await fetch(finalUrl, {
+                headers: {
+                    'User-Agent': `${userAgent} ${projectName}`
+                }
+            });
+            responseBody = await response.text();
+        } catch (err) {
+            errorLogs(`[getConfigContent][fetch error] ${err.message}`);
+        }
+    }
+
+    return responseBody;
+}
+
+function createSubConverterUrl(target, url, subConfig, subConverter, subProtocol) {
+    return `${subProtocol}://${subConverter}/sub?target=${target}&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
+}
+
+function isClashCondition(userAgent, _url) {
+    return (userAgent.includes('clash') && !userAgent.includes('nekobox')) || (_url.searchParams.has('clash') && !userAgent.includes('subConverter'));
+}
+
+function isSingboxCondition(userAgent, _url) {
+    return userAgent.includes('sing-box') || userAgent.includes('singbox') || ((_url.searchParams.has('singbox') || _url.searchParams.has('sb')) && !userAgent.includes('subConverter'));
+}
+
+function splitNodeData(uniqueIpTxt, noTLS, host, uuid, userAgent, protType, nat64, hostRemark, proxyIP) {
+    log(`splitNodeData----> \n host: ${host} \n uuid: ${uuid} \n protType: ${protType} \n hostRemark: ${hostRemark}`);
+
+    const regionMap = {
+        'SG': '🇸🇬 SG',
+        'HK': '🇭🇰 HK',
+        'KR': '🇰🇷 KR',
+        'JP': '🇯🇵 JP',
+        'GB': '🇬🇧 GB',
+        'US': '🇺🇸 US',
+        'TW': '🇼🇸 TW',
+        'CF': '📶 CF'
+    };
+    function isLikelyHost(str) {
+        if (!str) return false;
+        str = str.trim();
+        if (/\s|\/|\\|\(|\)|[\u4e00-\u9fff]/.test(str)) return false;
+        if (/^(\d{1,3}\.){3}\d{1,3}(:\d+)?$/.test(str)) return true;
+        if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(:\d+)?$/.test(str)) return true;
         return false;
     }
 
-    const hostParts = hostname.split('.');
-    const patternParts = pattern.split('.');
+    const responseBody = uniqueIpTxt.map(raw => {
+        const ipTxt = String(raw).trim();
+        log(`splitNodeData---> ipTxt: ${ipTxt}`);
+        let proxyip = "";
+        let port = "443";
+        let remarks = "";
+        let address = "";
 
-    if (hostParts.length < patternParts.length) return false;
-
-    for (let i = 1; i <= patternParts.length; i++) {
-        if (hostParts[hostParts.length - i] !== patternParts[patternParts.length - i]) {
-            return false;
-        }
-    }
-    return true;
-}
-
-async function resolveDomainToRouteX(domain, config) {
-    try {
-        log(`[resolveDomainToRouteX] Starting domain resolution: ${domain}`);
-        const response = await fetch(`${p64DnUrl}?name=${domain}&type=A`, {
-            headers: {
-                Accept: "application/dns-json",
-            },
-        });
-        if (!response.ok) {
-            throw new Error(`[resolveDomainToRouteX] request failed with status code: ${response.status}`);
+        const lastAt = ipTxt.lastIndexOf('@');
+        let main = ipTxt;
+        if (lastAt !== -1) {
+            const candidate = ipTxt.slice(lastAt + 1).trim();
+            if (isLikelyHost(candidate)) {
+                proxyip = candidate;
+                main = ipTxt.slice(0, lastAt);
+                log(`splitNodeData--detected-proxy--> proxyip: ${proxyip}  main: ${main}`);
+            } else {
+                log(`splitNodeData--at-in-remark--> ignored candidate after @: ${candidate}`);
+            }
         }
 
-        const result = await response.json();
-        log(`[resolveDomainToRouteX] Query result: ${JSON.stringify(result, null, 2)}`);
-        const aRecord = result?.Answer?.find(record => record.type === 1 && record.data);
-        if (!aRecord) {
-            throw new Error("No valid A record found");
-        }
-        const ipv4 = aRecord.data;
-        log(`[resolveDomainToRouteX] Found IPv4 address: ${ipv4}`);
-        const ipv6 = convertToRouteX(ipv4, config);
-        log(`[resolveDomainToRouteX] Converted IPv6 address: ${ipv6}`);
-        return ipv6;
-    } catch (err) {
-        error(`[Error] Failed to get routeX address: ${err.message}`);
-        throw new Error(`[resolveDomainToRouteX] resolution failed: ${err.message}`);
-    }
-}
-
-function convertToRouteX(ipv4Address, config) {
-    const parts = ipv4Address.trim().split('.');
-    if (parts.length !== 4) {
-        throw new Error('Invalid IPv4 address');
-    }
-    const hexParts = parts.map(part => {
-        const num = Number(part);
-        if (!/^\d+$/.test(part) || isNaN(num) || num < 0 || num > 255) {
-            throw new Error(`Invalid IPv4 segment: ${part}`);
-        }
-        return num.toString(16).padStart(2, '0');
-    });
-
-    let withBrackets = true;
-    log(`[convertToRouteX] p64Prefix--->: ${config.p64Prefix}`);
-    if (!config.p64Prefix || typeof config.p64Prefix !== 'string' || !config.p64Prefix.includes('::')) {
-        throw new Error('[convertToRouteX] Invalid manual prefix; must be a valid IPv6 prefix');
-    }
-    const ipv6Tail = `${hexParts[0]}${hexParts[1]}:${hexParts[2]}${hexParts[3]}`.toLowerCase();
-    const fullIPv6 = `${config.p64Prefix}${ipv6Tail}`;
-    return withBrackets ? `[${fullIPv6}]` : fullIPv6;
-}
-
-function stringToArray(str) {
-    if (!str) return [];
-    return str
-        .split(/[\n,]+/)
-        .map(s => s.trim())
-        .filter(Boolean);
-}
-
-(function () {
-    'use strict';
-
-    var ERROR = 'input is invalid type';
-    var WINDOW = typeof window === 'object';
-    var root = WINDOW ? window : {};
-    if (root.JS_SHA256_NO_WINDOW) {
-        WINDOW = false;
-    }
-    var WEB_WORKER = !WINDOW && typeof self === 'object';
-    var NODE_JS = !root.JS_SHA256_NO_NODE_JS && typeof process === 'object' && process.versions && process.versions.node;
-    if (NODE_JS) {
-        root = global;
-    } else if (WEB_WORKER) {
-        root = self;
-    }
-    var COMMON_JS = !root.JS_SHA256_NO_COMMON_JS && typeof module === 'object' && module.exports;
-    var AMD = typeof define === 'function' && define.amd;
-    var ARRAY_BUFFER = !root.JS_SHA256_NO_ARRAY_BUFFER && typeof ArrayBuffer !== 'undefined';
-    var HEX_CHARS = '0123456789abcdef'.split('');
-    var EXTRA = [-2147483648, 8388608, 32768, 128];
-    var SHIFT = [24, 16, 8, 0];
-    var K = [
-        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-        0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-        0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-        0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-        0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-        0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
-    ];
-    var OUTPUT_TYPES = ['hex', 'array', 'digest', 'arrayBuffer'];
-
-    var blocks = [];
-
-    if (root.JS_SHA256_NO_NODE_JS || !Array.isArray) {
-        Array.isArray = function (obj) {
-            return Object.prototype.toString.call(obj) === '[object Array]';
-        };
-    }
-
-    if (ARRAY_BUFFER && (root.JS_SHA256_NO_ARRAY_BUFFER_IS_VIEW || !ArrayBuffer.isView)) {
-        ArrayBuffer.isView = function (obj) {
-            return typeof obj === 'object' && obj.buffer && obj.buffer.constructor === ArrayBuffer;
-        };
-    }
-
-    var createOutputMethod = function (outputType, is224) {
-        return function (message) {
-            return new Sha256(is224, true).update(message)[outputType]();
-        };
-    };
-
-    var createMethod = function (is224) {
-        var method = createOutputMethod('hex', is224);
-        if (NODE_JS) {
-            method = nodeWrap(method, is224);
-        }
-        method.create = function () {
-            return new Sha256(is224);
-        };
-        method.update = function (message) {
-            return method.create().update(message);
-        };
-        for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
-            var type = OUTPUT_TYPES[i];
-            method[type] = createOutputMethod(type, is224);
-        }
-        return method;
-    };
-
-    var nodeWrap = function (method, is224) {
-        var crypto = require('node:crypto')
-        var Buffer = require('node:buffer').Buffer;
-        var algorithm = is224 ? 'sha224' : 'sha256';
-        var bufferFrom;
-        if (Buffer.from && !root.JS_SHA256_NO_BUFFER_FROM) {
-            bufferFrom = Buffer.from;
+        const mainMatch = main.match(/^(\[.*\]|[^:#\s]+)(?::(\d+))?(?:#(.*))?$/);
+        if (mainMatch) {
+            address = mainMatch[1];
+            port = mainMatch[2] || port;
+            remarks = mainMatch[3] || "";
         } else {
-            bufferFrom = function (message) {
-                return new Buffer(message);
-            };
+            address = main;
+            remarks = "";
         }
-        var nodeMethod = function (message) {
-            if (typeof message === 'string') {
-                return crypto.createHash(algorithm).update(message, 'utf8').digest('hex');
-            } else {
-                if (message === null || message === undefined) {
-                    throw new Error(ERROR);
-                } else if (message.constructor === ArrayBuffer) {
-                    message = new Uint8Array(message);
-                }
-            }
-            if (Array.isArray(message) || ArrayBuffer.isView(message) ||
-                message.constructor === Buffer) {
-                return crypto.createHash(algorithm).update(bufferFrom(message)).digest('hex');
-            } else {
-                return method(message);
-            }
-        };
-        return nodeMethod;
-    };
 
-    var createHmacOutputMethod = function (outputType, is224) {
-        return function (key, message) {
-            return new HmacSha256(key, is224, true).update(message)[outputType]();
-        };
-    };
-
-    var createHmacMethod = function (is224) {
-        var method = createHmacOutputMethod('hex', is224);
-        method.create = function (key) {
-            return new HmacSha256(key, is224);
-        };
-        method.update = function (key, message) {
-            return method.create(key).update(message);
-        };
-        for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
-            var type = OUTPUT_TYPES[i];
-            method[type] = createHmacOutputMethod(type, is224);
-        }
-        return method;
-    };
-
-    function Sha256(is224, sharedMemory) {
-        if (sharedMemory) {
-            blocks[0] = blocks[16] = blocks[1] = blocks[2] = blocks[3] =
-                blocks[4] = blocks[5] = blocks[6] = blocks[7] =
-                blocks[8] = blocks[9] = blocks[10] = blocks[11] =
-                blocks[12] = blocks[13] = blocks[14] = blocks[15] = 0;
-            this.blocks = blocks;
+        if (hostRemark) {
+            remarks = hostRemark;
         } else {
-            this.blocks = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            remarks = (remarks && remarks.trim()) ? remarks.trim() : address;
         }
 
-        if (is224) {
-            this.h0 = 0xc1059ed8;
-            this.h1 = 0x367cd507;
-            this.h2 = 0x3070dd17;
-            this.h3 = 0xf70e5939;
-            this.h4 = 0xffc00b31;
-            this.h5 = 0x68581511;
-            this.h6 = 0x64f98fa7;
-            this.h7 = 0xbefa4fa4;
-        } else { // 256
-            this.h0 = 0x6a09e667;
-            this.h1 = 0xbb67ae85;
-            this.h2 = 0x3c6ef372;
-            this.h3 = 0xa54ff53a;
-            this.h4 = 0x510e527f;
-            this.h5 = 0x9b05688c;
-            this.h6 = 0x1f83d9ab;
-            this.h7 = 0x5be0cd19;
+        const rmKey = String(remarks).trim().toUpperCase();
+        if (regionMap[rmKey]) {
+            remarks = regionMap[rmKey];
         }
 
-        this.block = this.start = this.bytes = this.hBytes = 0;
-        this.finalized = this.hashed = false;
-        this.first = true;
-        this.is224 = is224;
-    }
+        proxyip = proxyip || proxyIP;
+        log(`splitNodeData--final--> \n address: ${address} \n port: ${port} \n remarks: ${remarks} \n proxyip: ${proxyip}`);
 
-    Sha256.prototype.update = function (message) {
-        if (this.finalized) {
-            return;
-        }
-        var notString, type = typeof message;
-        if (type !== 'string') {
-            if (type === 'object') {
-                if (message === null) {
-                    throw new Error(ERROR);
-                } else if (ARRAY_BUFFER && message.constructor === ArrayBuffer) {
-                    message = new Uint8Array(message);
-                } else if (!Array.isArray(message)) {
-                    if (!ARRAY_BUFFER || !ArrayBuffer.isView(message)) {
-                        throw new Error(ERROR);
-                    }
-                }
-            } else {
-                throw new Error(ERROR);
-            }
-            notString = true;
-        }
-        var code, index = 0, i, length = message.length, blocks = this.blocks;
-        while (index < length) {
-            if (this.hashed) {
-                this.hashed = false;
-                blocks[0] = this.block;
-                this.block = blocks[16] = blocks[1] = blocks[2] = blocks[3] =
-                    blocks[4] = blocks[5] = blocks[6] = blocks[7] =
-                    blocks[8] = blocks[9] = blocks[10] = blocks[11] =
-                    blocks[12] = blocks[13] = blocks[14] = blocks[15] = 0;
-            }
-
-            if (notString) {
-                for (i = this.start; index < length && i < 64; ++index) {
-                    blocks[i >>> 2] |= message[index] << SHIFT[i++ & 3];
-                }
-            } else {
-                for (i = this.start; index < length && i < 64; ++index) {
-                    code = message.charCodeAt(index);
-                    if (code < 0x80) {
-                        blocks[i >>> 2] |= code << SHIFT[i++ & 3];
-                    } else if (code < 0x800) {
-                        blocks[i >>> 2] |= (0xc0 | (code >>> 6)) << SHIFT[i++ & 3];
-                        blocks[i >>> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
-                    } else if (code < 0xd800 || code >= 0xe000) {
-                        blocks[i >>> 2] |= (0xe0 | (code >>> 12)) << SHIFT[i++ & 3];
-                        blocks[i >>> 2] |= (0x80 | ((code >>> 6) & 0x3f)) << SHIFT[i++ & 3];
-                        blocks[i >>> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
-                    } else {
-                        code = 0x10000 + (((code & 0x3ff) << 10) | (message.charCodeAt(++index) & 0x3ff));
-                        blocks[i >>> 2] |= (0xf0 | (code >>> 18)) << SHIFT[i++ & 3];
-                        blocks[i >>> 2] |= (0x80 | ((code >>> 12) & 0x3f)) << SHIFT[i++ & 3];
-                        blocks[i >>> 2] |= (0x80 | ((code >>> 6) & 0x3f)) << SHIFT[i++ & 3];
-                        blocks[i >>> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
-                    }
-                }
-            }
-
-            this.lastByteIndex = i;
-            this.bytes += i - this.start;
-            if (i >= 64) {
-                this.block = blocks[16];
-                this.start = i - 64;
-                this.hash();
-                this.hashed = true;
-            } else {
-                this.start = i;
-            }
-        }
-        if (this.bytes > 4294967295) {
-            this.hBytes += this.bytes / 4294967296 << 0;
-            this.bytes = this.bytes % 4294967296;
-        }
-        return this;
-    };
-
-    Sha256.prototype.finalize = function () {
-        if (this.finalized) {
-            return;
-        }
-        this.finalized = true;
-        var blocks = this.blocks, i = this.lastByteIndex;
-        blocks[16] = this.block;
-        blocks[i >>> 2] |= EXTRA[i & 3];
-        this.block = blocks[16];
-        if (i >= 56) {
-            if (!this.hashed) {
-                this.hash();
-            }
-            blocks[0] = this.block;
-            blocks[16] = blocks[1] = blocks[2] = blocks[3] =
-                blocks[4] = blocks[5] = blocks[6] = blocks[7] =
-                blocks[8] = blocks[9] = blocks[10] = blocks[11] =
-                blocks[12] = blocks[13] = blocks[14] = blocks[15] = 0;
-        }
-        blocks[14] = this.hBytes << 3 | this.bytes >>> 29;
-        blocks[15] = this.bytes << 3;
-        this.hash();
-    };
-
-    Sha256.prototype.hash = function () {
-        var a = this.h0, b = this.h1, c = this.h2, d = this.h3, e = this.h4, f = this.h5, g = this.h6,
-            h = this.h7, blocks = this.blocks, j, s0, s1, maj, t1, t2, ch, ab, da, cd, bc;
-
-        for (j = 16; j < 64; ++j) {
-            // rightrotate
-            t1 = blocks[j - 15];
-            s0 = ((t1 >>> 7) | (t1 << 25)) ^ ((t1 >>> 18) | (t1 << 14)) ^ (t1 >>> 3);
-            t1 = blocks[j - 2];
-            s1 = ((t1 >>> 17) | (t1 << 15)) ^ ((t1 >>> 19) | (t1 << 13)) ^ (t1 >>> 10);
-            blocks[j] = blocks[j - 16] + s0 + blocks[j - 7] + s1 << 0;
+        if (noTLS !== 'true' && portSet_http.has(parseInt(port))) {
+            return null;
         }
 
-        bc = b & c;
-        for (j = 0; j < 64; j += 4) {
-            if (this.first) {
-                if (this.is224) {
-                    ab = 300032;
-                    t1 = blocks[0] - 1413257819;
-                    h = t1 - 150054599 << 0;
-                    d = t1 + 24177077 << 0;
-                } else {
-                    ab = 704751109;
-                    t1 = blocks[0] - 210244248;
-                    h = t1 - 1521486534 << 0;
-                    d = t1 + 143694565 << 0;
-                }
-                this.first = false;
-            } else {
-                s0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
-                s1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
-                ab = a & b;
-                maj = ab ^ (a & c) ^ bc;
-                ch = (e & f) ^ (~e & g);
-                t1 = h + s1 + ch + K[j] + blocks[j];
-                t2 = s0 + maj;
-                h = d + t1 << 0;
-                d = t1 + t2 << 0;
-            }
-            s0 = ((d >>> 2) | (d << 30)) ^ ((d >>> 13) | (d << 19)) ^ ((d >>> 22) | (d << 10));
-            s1 = ((h >>> 6) | (h << 26)) ^ ((h >>> 11) | (h << 21)) ^ ((h >>> 25) | (h << 7));
-            da = d & a;
-            maj = da ^ (d & b) ^ ab;
-            ch = (h & e) ^ (~h & f);
-            t1 = g + s1 + ch + K[j + 1] + blocks[j + 1];
-            t2 = s0 + maj;
-            g = c + t1 << 0;
-            c = t1 + t2 << 0;
-            s0 = ((c >>> 2) | (c << 30)) ^ ((c >>> 13) | (c << 19)) ^ ((c >>> 22) | (c << 10));
-            s1 = ((g >>> 6) | (g << 26)) ^ ((g >>> 11) | (g << 21)) ^ ((g >>> 25) | (g << 7));
-            cd = c & d;
-            maj = cd ^ (c & a) ^ da;
-            ch = (g & h) ^ (~g & e);
-            t1 = f + s1 + ch + K[j + 2] + blocks[j + 2];
-            t2 = s0 + maj;
-            f = b + t1 << 0;
-            b = t1 + t2 << 0;
-            s0 = ((b >>> 2) | (b << 30)) ^ ((b >>> 13) | (b << 19)) ^ ((b >>> 22) | (b << 10));
-            s1 = ((f >>> 6) | (f << 26)) ^ ((f >>> 11) | (f << 21)) ^ ((f >>> 25) | (f << 7));
-            bc = b & c;
-            maj = bc ^ (b & d) ^ cd;
-            ch = (f & g) ^ (~f & h);
-            t1 = e + s1 + ch + K[j + 3] + blocks[j + 3];
-            t2 = s0 + maj;
-            e = a + t1 << 0;
-            a = t1 + t2 << 0;
-            this.chromeBugWorkAround = true;
-        }
+        const [v2, clash] = getConfigLink(uuid, host, address, port, remarks, proxyip, protType, nat64);
+        return v2;
+    }).filter(Boolean).join('\n');
 
-        this.h0 = this.h0 + a << 0;
-        this.h1 = this.h1 + b << 0;
-        this.h2 = this.h2 + c << 0;
-        this.h3 = this.h3 + d << 0;
-        this.h4 = this.h4 + e << 0;
-        this.h5 = this.h5 + f << 0;
-        this.h6 = this.h6 + g << 0;
-        this.h7 = this.h7 + h << 0;
-    };
-
-    Sha256.prototype.hex = function () {
-        this.finalize();
-
-        var h0 = this.h0, h1 = this.h1, h2 = this.h2, h3 = this.h3, h4 = this.h4, h5 = this.h5,
-            h6 = this.h6, h7 = this.h7;
-
-        var hex = HEX_CHARS[(h0 >>> 28) & 0x0F] + HEX_CHARS[(h0 >>> 24) & 0x0F] +
-            HEX_CHARS[(h0 >>> 20) & 0x0F] + HEX_CHARS[(h0 >>> 16) & 0x0F] +
-            HEX_CHARS[(h0 >>> 12) & 0x0F] + HEX_CHARS[(h0 >>> 8) & 0x0F] +
-            HEX_CHARS[(h0 >>> 4) & 0x0F] + HEX_CHARS[h0 & 0x0F] +
-            HEX_CHARS[(h1 >>> 28) & 0x0F] + HEX_CHARS[(h1 >>> 24) & 0x0F] +
-            HEX_CHARS[(h1 >>> 20) & 0x0F] + HEX_CHARS[(h1 >>> 16) & 0x0F] +
-            HEX_CHARS[(h1 >>> 12) & 0x0F] + HEX_CHARS[(h1 >>> 8) & 0x0F] +
-            HEX_CHARS[(h1 >>> 4) & 0x0F] + HEX_CHARS[h1 & 0x0F] +
-            HEX_CHARS[(h2 >>> 28) & 0x0F] + HEX_CHARS[(h2 >>> 24) & 0x0F] +
-            HEX_CHARS[(h2 >>> 20) & 0x0F] + HEX_CHARS[(h2 >>> 16) & 0x0F] +
-            HEX_CHARS[(h2 >>> 12) & 0x0F] + HEX_CHARS[(h2 >>> 8) & 0x0F] +
-            HEX_CHARS[(h2 >>> 4) & 0x0F] + HEX_CHARS[h2 & 0x0F] +
-            HEX_CHARS[(h3 >>> 28) & 0x0F] + HEX_CHARS[(h3 >>> 24) & 0x0F] +
-            HEX_CHARS[(h3 >>> 20) & 0x0F] + HEX_CHARS[(h3 >>> 16) & 0x0F] +
-            HEX_CHARS[(h3 >>> 12) & 0x0F] + HEX_CHARS[(h3 >>> 8) & 0x0F] +
-            HEX_CHARS[(h3 >>> 4) & 0x0F] + HEX_CHARS[h3 & 0x0F] +
-            HEX_CHARS[(h4 >>> 28) & 0x0F] + HEX_CHARS[(h4 >>> 24) & 0x0F] +
-            HEX_CHARS[(h4 >>> 20) & 0x0F] + HEX_CHARS[(h4 >>> 16) & 0x0F] +
-            HEX_CHARS[(h4 >>> 12) & 0x0F] + HEX_CHARS[(h4 >>> 8) & 0x0F] +
-            HEX_CHARS[(h4 >>> 4) & 0x0F] + HEX_CHARS[h4 & 0x0F] +
-            HEX_CHARS[(h5 >>> 28) & 0x0F] + HEX_CHARS[(h5 >>> 24) & 0x0F] +
-            HEX_CHARS[(h5 >>> 20) & 0x0F] + HEX_CHARS[(h5 >>> 16) & 0x0F] +
-            HEX_CHARS[(h5 >>> 12) & 0x0F] + HEX_CHARS[(h5 >>> 8) & 0x0F] +
-            HEX_CHARS[(h5 >>> 4) & 0x0F] + HEX_CHARS[h5 & 0x0F] +
-            HEX_CHARS[(h6 >>> 28) & 0x0F] + HEX_CHARS[(h6 >>> 24) & 0x0F] +
-            HEX_CHARS[(h6 >>> 20) & 0x0F] + HEX_CHARS[(h6 >>> 16) & 0x0F] +
-            HEX_CHARS[(h6 >>> 12) & 0x0F] + HEX_CHARS[(h6 >>> 8) & 0x0F] +
-            HEX_CHARS[(h6 >>> 4) & 0x0F] + HEX_CHARS[h6 & 0x0F];
-        if (!this.is224) {
-            hex += HEX_CHARS[(h7 >>> 28) & 0x0F] + HEX_CHARS[(h7 >>> 24) & 0x0F] +
-                HEX_CHARS[(h7 >>> 20) & 0x0F] + HEX_CHARS[(h7 >>> 16) & 0x0F] +
-                HEX_CHARS[(h7 >>> 12) & 0x0F] + HEX_CHARS[(h7 >>> 8) & 0x0F] +
-                HEX_CHARS[(h7 >>> 4) & 0x0F] + HEX_CHARS[h7 & 0x0F];
-        }
-        return hex;
-    };
-
-    Sha256.prototype.toString = Sha256.prototype.hex;
-
-    Sha256.prototype.digest = function () {
-        this.finalize();
-
-        var h0 = this.h0, h1 = this.h1, h2 = this.h2, h3 = this.h3, h4 = this.h4, h5 = this.h5,
-            h6 = this.h6, h7 = this.h7;
-
-        var arr = [
-            (h0 >>> 24) & 0xFF, (h0 >>> 16) & 0xFF, (h0 >>> 8) & 0xFF, h0 & 0xFF,
-            (h1 >>> 24) & 0xFF, (h1 >>> 16) & 0xFF, (h1 >>> 8) & 0xFF, h1 & 0xFF,
-            (h2 >>> 24) & 0xFF, (h2 >>> 16) & 0xFF, (h2 >>> 8) & 0xFF, h2 & 0xFF,
-            (h3 >>> 24) & 0xFF, (h3 >>> 16) & 0xFF, (h3 >>> 8) & 0xFF, h3 & 0xFF,
-            (h4 >>> 24) & 0xFF, (h4 >>> 16) & 0xFF, (h4 >>> 8) & 0xFF, h4 & 0xFF,
-            (h5 >>> 24) & 0xFF, (h5 >>> 16) & 0xFF, (h5 >>> 8) & 0xFF, h5 & 0xFF,
-            (h6 >>> 24) & 0xFF, (h6 >>> 16) & 0xFF, (h6 >>> 8) & 0xFF, h6 & 0xFF
-        ];
-        if (!this.is224) {
-            arr.push((h7 >>> 24) & 0xFF, (h7 >>> 16) & 0xFF, (h7 >>> 8) & 0xFF, h7 & 0xFF);
-        }
-        return arr;
-    };
-
-    Sha256.prototype.array = Sha256.prototype.digest;
-
-    Sha256.prototype.arrayBuffer = function () {
-        this.finalize();
-
-        var buffer = new ArrayBuffer(this.is224 ? 28 : 32);
-        var dataView = new DataView(buffer);
-        dataView.setUint32(0, this.h0);
-        dataView.setUint32(4, this.h1);
-        dataView.setUint32(8, this.h2);
-        dataView.setUint32(12, this.h3);
-        dataView.setUint32(16, this.h4);
-        dataView.setUint32(20, this.h5);
-        dataView.setUint32(24, this.h6);
-        if (!this.is224) {
-            dataView.setUint32(28, this.h7);
-        }
-        return buffer;
-    };
-
-    function HmacSha256(key, is224, sharedMemory) {
-        var i, type = typeof key;
-        if (type === 'string') {
-            var bytes = [], length = key.length, index = 0, code;
-            for (i = 0; i < length; ++i) {
-                code = key.charCodeAt(i);
-                if (code < 0x80) {
-                    bytes[index++] = code;
-                } else if (code < 0x800) {
-                    bytes[index++] = (0xc0 | (code >>> 6));
-                    bytes[index++] = (0x80 | (code & 0x3f));
-                } else if (code < 0xd800 || code >= 0xe000) {
-                    bytes[index++] = (0xe0 | (code >>> 12));
-                    bytes[index++] = (0x80 | ((code >>> 6) & 0x3f));
-                    bytes[index++] = (0x80 | (code & 0x3f));
-                } else {
-                    code = 0x10000 + (((code & 0x3ff) << 10) | (key.charCodeAt(++i) & 0x3ff));
-                    bytes[index++] = (0xf0 | (code >>> 18));
-                    bytes[index++] = (0x80 | ((code >>> 12) & 0x3f));
-                    bytes[index++] = (0x80 | ((code >>> 6) & 0x3f));
-                    bytes[index++] = (0x80 | (code & 0x3f));
-                }
-            }
-            key = bytes;
-        } else {
-            if (type === 'object') {
-                if (key === null) {
-                    throw new Error(ERROR);
-                } else if (ARRAY_BUFFER && key.constructor === ArrayBuffer) {
-                    key = new Uint8Array(key);
-                } else if (!Array.isArray(key)) {
-                    if (!ARRAY_BUFFER || !ArrayBuffer.isView(key)) {
-                        throw new Error(ERROR);
-                    }
-                }
-            } else {
-                throw new Error(ERROR);
-            }
-        }
-
-        if (key.length > 64) {
-            key = (new Sha256(is224, true)).update(key).array();
-        }
-
-        var oKeyPad = [], iKeyPad = [];
-        for (i = 0; i < 64; ++i) {
-            var b = key[i] || 0;
-            oKeyPad[i] = 0x5c ^ b;
-            iKeyPad[i] = 0x36 ^ b;
-        }
-
-        Sha256.call(this, is224, sharedMemory);
-
-        this.update(iKeyPad);
-        this.oKeyPad = oKeyPad;
-        this.inner = true;
-        this.sharedMemory = sharedMemory;
-    }
-    HmacSha256.prototype = new Sha256();
-
-    HmacSha256.prototype.finalize = function () {
-        Sha256.prototype.finalize.call(this);
-        if (this.inner) {
-            this.inner = false;
-            var innerHash = this.array();
-            Sha256.call(this, this.is224, this.sharedMemory);
-            this.update(this.oKeyPad);
-            this.update(innerHash);
-            Sha256.prototype.finalize.call(this);
-        }
-    };
-
-    var exports = createMethod();
-    exports.sha256 = exports;
-    exports.sha224 = createMethod(true);
-    exports.sha256.hmac = createHmacMethod();
-    exports.sha224.hmac = createHmacMethod(true);
-
-    if (COMMON_JS) {
-        module.exports = exports;
-    } else {
-        root.sha256 = exports.sha256;
-        root.sha224 = exports.sha224;
-        if (AMD) {
-            define(function () {
-                return exports;
-            });
-        }
-    }
-})();
-
-
-/** ---------------------cf data------------------------------ */
-const MY_KV_ALL_KEY = 'KV_CONFIG';
-async function check_kv(env) {
-    if (!env || !env.amclubs) {
-        return new Response('Error: amclubs KV_NAMESPACE is not bound.', {
-            status: 400,
-        });
-    }
-    if (typeof env.amclubs === 'undefined') {
-        return new Response('Error: amclubs KV_NAMESPACE is not bound.', {
-            status: 400,
-        })
-    }
-    return null;
+    return responseBody;
 }
 
-async function get_kv(env) {
-    try {
-        const config = await env.amclubs.get(MY_KV_ALL_KEY, { type: 'json' });
-        if (!config) {
-            return {
-                kv_id: '',
-                kv_pDomain: [],
-                kv_p64Domain: []
-            };
-        }
+async function getIpUrlTxtAndCsv(noTLS, urlTxts, urlCsvs, num) {
+    if (noTLS === 'true') {
         return {
-            kv_id: config.kv_id || '',
-            kv_pDomain: Array.isArray(config.kv_pDomain) ? config.kv_pDomain : stringToArray(config.kv_pDomain),
-            kv_p64Domain: Array.isArray(config.kv_p64Domain) ? config.kv_p64Domain : stringToArray(config.kv_p64Domain)
-        };
-    } catch (err) {
-        error('[get_kv] Error reading KV:', err);
-        return {
-            kv_id: '',
-            kv_pDomain: [],
-            kv_p64Domain: []
+            txt: await getIpUrlTxt(urlTxts, num),
+            csv: await getIpUrlCsv(urlCsvs, 'FALSE')
         };
     }
+    return {
+        txt: await getIpUrlTxt(urlTxts, num),
+        csv: await getIpUrlCsv(urlCsvs, 'TRUE')
+    };
 }
 
-async function set_kv_data(request, env) {
+async function getIpUrlTxt(urlTxts, num) {
+    if (!urlTxts || urlTxts.length === 0) {
+        return [];
+    }
+
+    let ipTxt = "";
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+        controller.abort();
+    }, 2000);
+
     try {
-        const { kv_id, kv_pDomain, kv_p64Domain } = await request.json();
-        const data = {
-            kv_id,
-            kv_pDomain: stringToArray(kv_pDomain),
-            kv_p64Domain: stringToArray(kv_p64Domain)
-        };
-        await env.amclubs.put(MY_KV_ALL_KEY, JSON.stringify(data));
-        return new Response('保存成功', { status: 200 });
-    } catch (err) {
-        return new Response('保存失败: ' + err.message, { status: 500 });
-    }
-}
-
-async function show_kv_page(env) {
-    const kvCheckResponse = await check_kv(env);
-    if (kvCheckResponse) {
-        return kvCheckResponse;
-    }
-    const { kv_id, kv_pDomain, kv_p64Domain } = await get_kv(env);
-    log('[show_kv_page] KV数据:', { kv_id, kv_pDomain, kv_p64Domain });
-
-    return new Response(
-        renderPage({
-            base64Title: pName,
-            suffix: '-设置',
-            heading: `配置设置`,
-            bodyContent: `
-                <label>ID：</label>
-                <input type="text" id="kv_id" placeholder="请输入ID" value="${kv_id || ''}" /><br/><br/>
-                <label>pDomain（逗号或换行分隔多个域名）：</label>
-                <textarea id="kv_pDomain" placeholder="例如 a.com,b.com" rows="4">${kv_pDomain.join('\n')}</textarea><br/><br/>
-                <label>p64Domain（逗号或换行分隔多个域名）：</label>
-                <textarea id="kv_p64Domain" placeholder="例如 b.com,c.com" rows="4">${kv_p64Domain.join('\n')}</textarea><br/><br/>
-                <button onclick="saveData()">保存</button>
-                <div id="saveStatus" style="margin-top:10px;color:green;"></div>
-
-                <script>
-                    async function saveData() {
-                        const kv_id = document.getElementById('kv_id').value;
-                        const kv_pDomain = document.getElementById('kv_pDomain').value;
-                        const kv_p64Domain = document.getElementById('kv_p64Domain').value;
-
-                        const body = JSON.stringify({ kv_id, kv_pDomain, kv_p64Domain });
-                        try {
-                            const response = await fetch('/${id}/set', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body
-                            });
-
-                            const text = await response.text();
-                            const statusDiv = document.getElementById('saveStatus');
-                            statusDiv.innerText = text;
-
-                            setTimeout(() => {
-                                statusDiv.innerText = '';
-                            }, 3000);
-                        } catch (err) {
-                            const statusDiv = document.getElementById('saveStatus');
-                            statusDiv.innerText = '保存失败: ' + err.message;
-                            setTimeout(() => {
-                                statusDiv.innerText = '';
-                            }, 3000);
-                        }
-                    }
-                </script>
-            `
-        }),
-        { headers: { "Content-Type": "text/html; charset=UTF-8" }, status: 200 }
-    );
-}
-
-
-/** -------------------websvc logic-------------------------------- */
-const WS_READY_STATE_OPEN = 1;
-const WS_READY_STATE_CLOSING = 2;
-async function websvcExecutor(request, config) {
-    const webSocketPair = new WebSocketPair();
-    const [client, webSocket] = Object.values(webSocketPair);
-    webSocket.accept();
-
-    let address = '';
-    let portWithRandomLog = '';
-    let currentDate = new Date();
-    const log = (/** @type {string} */ info, /** @type {string | undefined} */ event) => {
-        console.log(`[${currentDate} ${address}:${portWithRandomLog}] ${info}`, event || '');
-    };
-    const earlyDataHeader = request.headers.get('sec-websocket-protocol') || '';
-    const readableWebSocketStream = websvcStream(webSocket, earlyDataHeader, log);
-
-    /** @type {{ value: import("@cloudflare/workers-types").Socket | null}}*/
-    let remoteSocketWapper = {
-        value: null,
-    };
-    let udpStreamWrite = null;
-    let isDns = false;
-
-    readableWebSocketStream.pipeTo(new WritableStream({
-        async write(chunk, controller) {
-            if (isDns && udpStreamWrite) {
-                return udpStreamWrite(chunk);
-            }
-            if (remoteSocketWapper.value) {
-                const writer = remoteSocketWapper.value.writable.getWriter()
-                await writer.write(chunk);
-                writer.releaseLock();
-                return;
-            }
-
-            const {
-                hasError,
-                message,
-                portRemote = 443,
-                addressRemote = '',
-                rawDataIndex,
-                channelVersion = new Uint8Array([0, 0]),
-                isUDP,
-                addressType,
-            } = handleRequestHeader(chunk, id);
-            address = addressRemote;
-            portWithRandomLog = `${portRemote} ${isUDP ? 'udp' : 'tcp'} `;
-            log(`handleRequestHeader-->${addressType} Processing TCP outbound connection ${addressRemote}:${portRemote} portWithRandomLog:${portWithRandomLog}`);
-
-            if (hasError) {
-                throw new Error(message);
-            }
-
-            if (isUDP && portRemote !== 53) {
-                throw new Error('UDP proxy only enabled for DNS which is port 53');
-            }
-
-            if (isUDP && portRemote === 53) {
-                isDns = true;
-            }
-
-            const channelResponseHeader = new Uint8Array([channelVersion[0], 0]);
-            const rawClientData = chunk.slice(rawDataIndex);
-
-            if (isDns) {
-                const { write } = await handleUPOut(webSocket, channelResponseHeader, config);
-                udpStreamWrite = write;
-                udpStreamWrite(rawClientData);
-                return;
-            }
-
-            handleTPOut(remoteSocketWapper, addressRemote, portRemote, rawClientData, webSocket, channelResponseHeader, log, addressType, config);
-        },
-        close() {
-            log(`readableWebSocketStream is close`);
-        },
-        abort(reason) {
-            log(`readableWebSocketStream is abort`, JSON.stringify(reason));
-        },
-    })).catch((err) => {
-        log('readableWebSocketStream pipeTo error', err);
-    });
-
-    return new Response(null, {
-        status: 101,
-        webSocket: client,
-    });
-}
-
-async function websvcExecutorTr(request, config) {
-    const webSocketPair = new WebSocketPair();
-    const [client, webSocket] = Object.values(webSocketPair);
-    webSocket.accept();
-
-    let address = "";
-    let portWithRandomLog = "";
-    const remoteSocketWrapper = { value: null };
-    let udpStreamWrite = null;
-
-    const log = (info, event = "") => {
-        console.log(`[${address}:${portWithRandomLog}] ${info}`, event);
-    };
-
-    const earlyDataHeader = request.headers.get("sec-websocket-protocol") || "";
-    const readableWebSocketStream = websvcStream(webSocket, earlyDataHeader, log);
-
-    const handleStreamData = async (chunk) => {
-        if (udpStreamWrite) {
-            return udpStreamWrite(chunk);
-        }
-
-        if (remoteSocketWrapper.value) {
-            const writer = remoteSocketWrapper.value.writable.getWriter();
-            await writer.write(chunk);
-            writer.releaseLock();
-            return;
-        }
-
-        const { hasError, message, portRemote = 443, addressRemote = "", rawClientData, addressType } = await handleRequestHeaderTr(chunk, id);
-        address = addressRemote;
-        portWithRandomLog = `${portRemote}--${Math.random()} tcp`;
-        if (hasError) {
-            throw new Error(message);
-        }
-
-        handleTPOut(remoteSocketWrapper, addressRemote, portRemote, rawClientData, webSocket, null, log, addressType, config);
-    };
-
-    readableWebSocketStream.pipeTo(
-        new WritableStream({
-            write: handleStreamData,
-            close: () => log("readableWebSocketStream is closed"),
-            abort: (reason) => log("readableWebSocketStream is aborted", JSON.stringify(reason)),
-        })
-    ).catch((err) => {
-        log("readableWebSocketStream pipeTo error", err);
-    });
-
-    return new Response(null, {
-        status: 101,
-        // @ts-ignore
-        webSocket: client
-    });
-}
-
-function websvcStream(pipeServer, earlyDataHeader, log) {
-    let readableStreamCancel = false;
-    const stream = new ReadableStream({
-        start(controller) {
-            pipeServer.addEventListener('message', (event) => {
-                const message = event.data;
-                controller.enqueue(message);
-            });
-
-            pipeServer.addEventListener('close', () => {
-                closeDataStream(pipeServer);
-                controller.close();
-            });
-
-            pipeServer.addEventListener('error', (err) => {
-                log('pipeServer has error');
-                controller.error(err);
-            });
-            const { earlyData, error } = b64ToBuf(earlyDataHeader);
-            if (error) {
-                controller.error(error);
-            } else if (earlyData) {
-                controller.enqueue(earlyData);
-            }
-        },
-
-        pull(controller) {
-            // if ws can stop read if stream is full, we can implement backpressure
-        },
-
-        cancel(reason) {
-            log(`ReadableStream was canceled, due to ${reason}`)
-            readableStreamCancel = true;
-            closeDataStream(pipeServer);
-        }
-    });
-
-    return stream;
-}
-
-async function handleTPOut(remoteS, addressRemote, portRemote, rawClientData, pipe, channelResponseHeader, log, addressType, config) {
-
-    async function connectAndWrite(address, port, socks = false) {
-        const tcpS = socks ? await serviceCall(addressType, address, port, log) : connect({ hostname: address, port: port, servername: addressRemote });
-        remoteS.value = tcpS;
-        log(`[connectAndWrite]--> s5:${socks} connected to ${address}:${port}`);
-        const writer = tcpS.writable.getWriter();
-        await writer.write(rawClientData);
-        writer.releaseLock();
-        return tcpS;
-    }
-
-    async function retry() {
-        const finalTargetHost = config.paddr || addressRemote;
-        const finalTargetPort = config.pnum || portRemote;
-        const tcpS = config.s5Enable ? await connectAndWrite(finalTargetHost, finalTargetPort, true) : await connectAndWrite(finalTargetHost, finalTargetPort);
-        log(`[retry]--> s5:${config.s5Enable} connected to ${finalTargetHost}:${finalTargetPort}`);
-        let hasError = false;
-        tcpS.closed.catch(error => {
-            hasError = true;
-            log('[retry]--> tcpS closed error', error);
-        });
-        await transferDataStream(tcpS, pipe, channelResponseHeader, null, log);
-        if (hasError) {
-            throw new Error("retry tcp closed");
-        }
-        closeDataStream(pipe);
-    }
-
-    async function nat64() {
-        const finalTargetHost = await resolveDomainToRouteX(addressRemote, config);
-        const finalTargetPort = portRemote;
-        const tcpS = config.s5Enable ? await connectAndWrite(finalTargetHost, finalTargetPort, true) : await connectAndWrite(finalTargetHost, finalTargetPort);
-        log(`[nat64]--> s5:${config.s5Enable} connected to ${finalTargetHost}:${finalTargetPort}`);
-        let hasError = false;
-        tcpS.closed.catch(error => {
-            hasError = true;
-            log('[nat64]--> tcpS closed error', error);
-        });
-        await transferDataStream(tcpS, pipe, channelResponseHeader, null, log);
-        if (hasError) {
-            throw new Error("nat64 tcp closed");
-        }
-        closeDataStream(pipe);
-    }
-
-    async function finalStep() {
-        try {
-            if (config.p64) {
-                log('[finalStep] p64=true → try nat64() first, then retry() if nat64 fails');
-                const ok = await tryOnce(nat64, 'nat64');
-                if (!ok) await tryOnce(retry, 'retry');
-            } else {
-                log('[finalStep] p64=false → try retry() first, then nat64() if retry fails');
-                const ok = await tryOnce(retry, 'retry');
-                if (!ok) await tryOnce(nat64, 'nat64');
-            }
-        } catch (err) {
-            log('[finalStep] error:', err);
-        }
-    }
-
-    async function tryOnce(fn, tag) {
-        try {
-            const ok = await fn();
-            log(`[tryOnce] ${tag} finished normally`);
-            return true;
-        } catch (err) {
-            log(`[tryOnce] ${tag} failed:`, err);
-            return false;
-        }
-    }
-
-    const { finalTargetHost, finalTargetPort } = await getDomainToRouteX(addressRemote, portRemote, config.s5Enable, false, config);
-    const tcpS = await connectAndWrite(finalTargetHost, finalTargetPort, config.s5Enable ? true : false);
-    transferDataStream(tcpS, pipe, channelResponseHeader, finalStep, log);
-}
-
-async function transferDataStream(remoteS, pipe, channelResponseHeader, retry, log) {
-    let remoteChunkCount = 0;
-    let chunks = [];
-    let channelHeader = channelResponseHeader;
-    let hasIncomingData = false;
-    await remoteS.readable
-        .pipeTo(
-            new WritableStream({
-                start() {
-                },
-                async write(chunk, controller) {
-                    hasIncomingData = true;
-                    remoteChunkCount++;
-                    if (pipe.readyState !== WS_READY_STATE_OPEN) {
-                        controller.error(
-                            '[transferDataStream]--> pipe.readyState is not open, maybe close'
-                        );
-                    }
-                    if (channelHeader) {
-                        pipe.send(await new Blob([channelHeader, chunk]).arrayBuffer());
-                        channelHeader = null;
-                    } else {
-                        pipe.send(chunk);
-                    }
-                },
-                close() {
-                    log(`[transferDataStream]--> serviceCallion!.readable is close with hasIncomingData is ${hasIncomingData}`);
-                },
-                abort(reason) {
-                    console.error(`[transferDataStream]--> serviceCallion!.readable abort`, reason);
-                },
-            })
-        )
-        .catch((error) => {
-            console.error(`[transferDataStream]--> transferDataStream has exception `, error.stack || error);
-            closeDataStream(pipe);
+        const urlMappings = urlTxts.map(entry => {
+            const [url, suffix] = entry.split('@');
+            return { url, suffix: suffix ? `@${suffix}` : '' };
         });
 
-    if (hasIncomingData === false && typeof retry === 'function') {
-        log(`[transferDataStream]--> no data, invoke finalStep flow`);
-        retry();
-    }
-}
-
-async function handleUPOut(pipe, channelResponseHeader, config) {
-    let ischannelHeaderSent = false;
-    const transformStream = new TransformStream({
-        start(controller) {
-
-        },
-        transform(chunk, controller) {
-            for (let index = 0; index < chunk.byteLength;) {
-                const lengthBuffer = chunk.slice(index, index + 2);
-                const udpPakcetLength = new DataView(lengthBuffer).getUint16(0);
-                const udpData = new Uint8Array(
-                    chunk.slice(index + 2, index + 2 + udpPakcetLength)
-                );
-                index = index + 2 + udpPakcetLength;
-                controller.enqueue(udpData);
-            }
-        },
-        flush(controller) {
-        }
-    });
-
-    transformStream.readable.pipeTo(new WritableStream({
-        async write(chunk) {
-            const resp = await fetch(config.durl, // dns server url
-                {
-                    method: 'POST',
+        const responses = await Promise.allSettled(
+            urlMappings.map(({ url }) =>
+                fetch(url, {
+                    method: 'GET',
                     headers: {
-                        'content-type': 'application/dns-message',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;',
+                        'User-Agent': projectName
                     },
-                    body: chunk,
-                })
-            const dnsQueryResult = await resp.arrayBuffer();
-            const udpSize = dnsQueryResult.byteLength;
-            const udpSizeBuffer = new Uint8Array([(udpSize >> 8) & 0xff, udpSize & 0xff]);
-            if (pipe.readyState === WS_READY_STATE_OPEN) {
-                log(`doh success and dns message length is ${udpSize}`);
-                if (ischannelHeaderSent) {
-                    pipe.send(await new Blob([udpSizeBuffer, dnsQueryResult]).arrayBuffer());
-                } else {
-                    pipe.send(await new Blob([channelResponseHeader, udpSizeBuffer, dnsQueryResult]).arrayBuffer());
-                    ischannelHeaderSent = true;
-                }
+                    signal: controller.signal
+                }).then(response => response.ok ? response.text() : Promise.reject())
+            )
+        );
+
+        for (let i = 0; i < responses.length; i++) {
+            const response = responses[i];
+            if (response.status === 'fulfilled') {
+                const suffix = urlMappings[i].suffix;
+                const content = response.value
+                    .split('\n')
+                    .filter(line => line.trim() !== "")
+                    .map(line => line + suffix)
+                    .join('\n');
+
+                ipTxt += content + '\n';
             }
-        }
-    })).catch((err) => {
-        error('dns udp has error' + err)
-    });
-
-    const writer = transformStream.writable.getWriter();
-
-    return {
-        /**
-         *
-         * @param {Uint8Array} chunk
-         */
-        write(chunk) {
-            writer.write(chunk);
-        }
-    };
-}
-
-async function serviceCall(ipType, remoteIp, remotePort, config) {
-    const { username, password, hostname, port } = config.parsedS5;
-    const socket = connect({ hostname, port });
-    const writer = socket.writable.getWriter();
-    const reader = socket.readable.getReader();
-    const encoder = new TextEncoder();
-
-    const sendSocksGreeting = async () => {
-        const greeting = new Uint8Array([5, 2, 0, 2]);
-        await writer.write(greeting);
-    };
-
-    const handleAuthResponse = async () => {
-        const res = (await reader.read()).value;
-        if (res[1] === 0x02) {
-            if (!username || !password) {
-                throw new Error("Authentication required");
-            }
-            const authRequest = new Uint8Array([
-                1, username.length, ...encoder.encode(username),
-                password.length, ...encoder.encode(password)
-            ]);
-            await writer.write(authRequest);
-            const authResponse = (await reader.read()).value;
-            if (authResponse[0] !== 0x01 || authResponse[1] !== 0x00) {
-                throw new Error("Authentication failed");
-            }
-        }
-    };
-
-    const sendSocksRequest = async () => {
-        let DSTADDR;
-        switch (ipType) {
-            case 1:
-                DSTADDR = new Uint8Array([1, ...remoteIp.split('.').map(Number)]);
-                break;
-            case 2:
-                DSTADDR = new Uint8Array([3, remoteIp.length, ...encoder.encode(remoteIp)]);
-                break;
-            case 3:
-                DSTADDR = new Uint8Array([4, ...remoteIp.split(':').flatMap(x => [
-                    parseInt(x.slice(0, 2), 16), parseInt(x.slice(2), 16)
-                ])]);
-                break;
-            default:
-                throw new Error("Invalid address type");
-        }
-        const socksRequest = new Uint8Array([5, 1, 0, ...DSTADDR, remotePort >> 8, remotePort & 0xff]);
-        await writer.write(socksRequest);
-
-        const response = (await reader.read()).value;
-        if (response[1] !== 0x00) {
-            throw new Error("Connection failed");
-        }
-    };
-
-    try {
-        await sendSocksGreeting();
-        await handleAuthResponse();
-        await sendSocksRequest();
-    } catch (err) {
-        error(err.message);
-        return null;
-    } finally {
-        writer.releaseLock();
-        reader.releaseLock();
-    }
-    return socket;
-}
-
-function handleRequestHeader(channelBuffer, id) {
-    if (channelBuffer.byteLength < 24) {
-        return {
-            hasError: true,
-            message: 'invalid data',
-        };
-    }
-
-    const version = new Uint8Array(channelBuffer.slice(0, 1));
-    let isValidUser = false;
-    let isUDP = false;
-    const slicedBuffer = new Uint8Array(channelBuffer.slice(1, 17));
-    const slicedBufferString = stringify(slicedBuffer);
-    const uuids = id.includes(',') ? id.split(",") : [id];
-
-    isValidUser = uuids.some(userUuid => slicedBufferString === userUuid.trim()) || uuids.length === 1 && slicedBufferString === uuids[0].trim();
-    if (!isValidUser) {
-        return {
-            hasError: true,
-            message: 'invalid user',
-        };
-    }
-
-    const optLength = new Uint8Array(channelBuffer.slice(17, 18))[0];
-    const command = new Uint8Array(
-        channelBuffer.slice(18 + optLength, 18 + optLength + 1)
-    )[0];
-
-    if (command === 1) {
-        isUDP = false;
-    } else if (command === 2) {
-        isUDP = true;
-    } else {
-        return {
-            hasError: true,
-            message: `command ${command} is not support, command 01-tcp,02-udp,03-mux`,
-        };
-    }
-    const portIndex = 18 + optLength + 1;
-    const portBuffer = channelBuffer.slice(portIndex, portIndex + 2);
-    const portRemote = new DataView(portBuffer).getUint16(0);
-
-    let addressIndex = portIndex + 2;
-    const addressBuffer = new Uint8Array(
-        channelBuffer.slice(addressIndex, addressIndex + 1)
-    );
-
-    const addressType = addressBuffer[0];
-    let addressLength = 0;
-    let addressValueIndex = addressIndex + 1;
-    let addressValue = '';
-    switch (addressType) {
-        case 1:
-            addressLength = 4;
-            addressValue = new Uint8Array(
-                channelBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
-            ).join('.');
-            break;
-        case 2:
-            addressLength = new Uint8Array(
-                channelBuffer.slice(addressValueIndex, addressValueIndex + 1)
-            )[0];
-            addressValueIndex += 1;
-            addressValue = new TextDecoder().decode(
-                channelBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
-            );
-            break;
-        case 3:
-            addressLength = 16;
-            const dataView = new DataView(
-                channelBuffer.slice(addressValueIndex, addressValueIndex + addressLength)
-            );
-            // 2001:0db8:85a3:0000:0000:8a2e:0370:7334
-            const ipv6 = [];
-            for (let i = 0; i < 8; i++) {
-                ipv6.push(dataView.getUint16(i * 2).toString(16));
-            }
-            addressValue = ipv6.join(':');
-            // seems no need add [] for ipv6
-            break;
-        default:
-            return {
-                hasError: true,
-                message: `invild  addressType is ${addressType}`,
-            };
-    }
-    if (!addressValue) {
-        return {
-            hasError: true,
-            message: `addressValue is empty, addressType is ${addressType}`,
-        };
-    }
-
-    return {
-        hasError: false,
-        message: null,
-        addressRemote: addressValue,
-        portRemote,
-        rawDataIndex: addressValueIndex + addressLength,
-        channelVersion: version,
-        isUDP,
-        addressType,
-    };
-}
-
-async function handleRequestHeaderTr(buffer, id) {
-    if (buffer.byteLength < 56) {
-        return {
-            hasError: true,
-            message: "invalid data"
-        };
-    }
-    let crLfIndex = 56;
-    if (new Uint8Array(buffer.slice(56, 57))[0] !== 0x0d || new Uint8Array(buffer.slice(57, 58))[0] !== 0x0a) {
-        return {
-            hasError: true,
-            message: "invalid header format (missing CR LF)"
-        };
-    }
-    const password = new TextDecoder().decode(buffer.slice(0, crLfIndex));
-    if (password !== sha256.sha224(id)) {
-        return {
-            hasError: true,
-            message: "invalid password"
-        };
-    }
-
-    const s5DataBuffer = buffer.slice(crLfIndex + 2);
-    if (s5DataBuffer.byteLength < 6) {
-        return {
-            hasError: true,
-            message: "invalid S5 request data"
-        };
-    }
-
-    const view = new DataView(s5DataBuffer);
-    const cmd = view.getUint8(0);
-    if (cmd !== 1) {
-        return {
-            hasError: true,
-            message: "unsupported command, only TCP (CONNECT) is allowed"
-        };
-    }
-
-    const addressType = view.getUint8(1);
-    let addressLength = 0;
-    let addressIndex = 2;
-    let address = "";
-    switch (addressType) {
-        case 1:
-            addressLength = 4;
-            address = new Uint8Array(
-                s5DataBuffer.slice(addressIndex, addressIndex + addressLength)
-            ).join(".");
-            break;
-        case 3:
-            addressLength = new Uint8Array(
-                s5DataBuffer.slice(addressIndex, addressIndex + 1)
-            )[0];
-            addressIndex += 1;
-            address = new TextDecoder().decode(
-                s5DataBuffer.slice(addressIndex, addressIndex + addressLength)
-            );
-            break;
-        case 4:
-            addressLength = 16;
-            const dataView = new DataView(s5DataBuffer.slice(addressIndex, addressIndex + addressLength));
-            const ipv6 = [];
-            for (let i = 0; i < 8; i++) {
-                ipv6.push(dataView.getUint16(i * 2).toString(16));
-            }
-            address = ipv6.join(":");
-            break;
-        default:
-            return {
-                hasError: true,
-                message: `invalid addressType is ${addressType}`
-            };
-    }
-
-    if (!address) {
-        return {
-            hasError: true,
-            message: `address is empty, addressType is ${addressType}`
-        };
-    }
-
-    const portIndex = addressIndex + addressLength;
-    const portBuffer = s5DataBuffer.slice(portIndex, portIndex + 2);
-    const portRemote = new DataView(portBuffer).getUint16(0);
-    return {
-        hasError: false,
-        message: null,
-        addressRemote: address,
-        portRemote,
-        rawClientData: s5DataBuffer.slice(portIndex + 4),
-        addressType: addressType
-    };
-}
-
-function closeDataStream(socket) {
-    try {
-        if (socket.readyState === WS_READY_STATE_OPEN || socket.readyState === WS_READY_STATE_CLOSING) {
-            socket.close();
         }
     } catch (error) {
-        console.error('closeDataStream error', error);
+        errorLogs(error);
+    } finally {
+        clearTimeout(timeout);
     }
+    log(`getIpUrlTxt-->ipTxt: ${ipTxt} \n `);
+    let newIpTxt = await addIpText(ipTxt);
+    const hasAcCom = urlTxts.includes(defaultIpUrlTxt);
+    if (hasAcCom && typeof randomNum === 'number' && randomNum !== 0) {
+        newIpTxt = getRandomItems(newIpTxt, num);
+    }
+
+    return newIpTxt;
 }
 
-/** -------------------home page-------------------------------- */
-async function login(request, env) {
-    const headers = {
-        "Content-Type": "text/html; charset=UTF-8",
-        "referer": "https://www.google.com/search?q=" + fname
-    };
-    if (request.method === "POST") {
-        const formData = await request.formData();
-        const inputPassword = formData.get("password");
-        if (inputPassword === id) {
-            return await show_kv_page(env);
-        } else {
-            return new Response(
-                renderPage({
-                    base64Title: pName,
-                    suffix: '-登录失败',
-                    heading: '❌ 登录失败',
-                    bodyContent: `
-                        <p>密码错误，请重新尝试。</p>
-                        <p><a href="/">返回登录页面</a></p>
-                    `
-                }),
-                { headers: { "Content-Type": "text/html; charset=UTF-8" }, status: 200 }
-            );
+async function getIpUrlTxtToArry(urlTxts) {
+    if (!urlTxts || urlTxts.length === 0) {
+        return [];
+    }
+    let ipTxt = "";
+    const controller = new AbortController();
+
+    const timeout = setTimeout(() => {
+        controller.abort();
+    }, 2000);
+
+    try {
+        const responses = await Promise.allSettled(urlTxts.map(apiUrl => fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;',
+                'User-Agent': projectName
+            },
+            signal: controller.signal
+        }).then(response => response.ok ? response.text() : Promise.reject())));
+        for (const response of responses) {
+            if (response.status === 'fulfilled') {
+                const content = await response.value;
+                ipTxt += content + '\n';
+            }
         }
+    } catch (error) {
+        errorLogs(error);
+    } finally {
+        clearTimeout(timeout);
     }
 
-    return new Response(
-        renderPage({
-            base64Title: pName,
-            suffix: '-登录',
-            heading: '请输入密码登录',
-            bodyContent: `
-                <form method="POST">
-                    <input type="password" name="password" placeholder="密码" required />
-                    <button type="submit">登录</button>
-                </form>
-            `
-        }),
-        { headers: { "Content-Type": "text/html; charset=UTF-8" }, status: 200 }
-    );
-
+    const newIpTxt = await addIpText(ipTxt);
+    log(`urlTxts: ${urlTxts} \n ipTxt: ${ipTxt} \n newIpTxt: ${newIpTxt} `);
+    return newIpTxt;
 }
 
-function renderPage({ base64Title, suffix = '', heading, bodyContent }) {
-    const title = decodeBase64Utf8(base64Title);
-    const fullTitle = title + suffix;
+async function getIpUrlCsv(urlCsvs, tls) {
+    if (!urlCsvs || urlCsvs.length === 0) {
+        return [];
+    }
+    const newAddressesCsv = [];
 
-    return `<!DOCTYPE html>
-        <html lang="zh-CN">
+    const fetchCsvPromises = urlCsvs.map(async (csvUrl) => {
+        const [url, suffix] = csvUrl.split('@');
+        const suffixText = suffix ? `@${suffix}` : '';
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                errorLogs('Error fetching CSV:', response.status, response.statusText);
+                return;
+            }
+            const text = await response.text();
+            const lines = text.includes('\r\n') ? text.split('\r\n') : text.split('\n');
+            if (lines.length < 2) {
+                errorLogs('CSV file is empty or has no data rows');
+                return;
+            }
+            const header = lines[0].trim().split(',');
+            const tlsIndex = header.indexOf('TLS');
+            const ipAddressIndex = 0;
+            const portIndex = 1;
+            const dataCenterIndex = tlsIndex + 1;
+            const speedIndex = header.length - 1;
+            if (tlsIndex === -1) {
+                errorLogs('CSV file missing required TLS field');
+                return;
+            }
+
+            for (let i = 1; i < lines.length; i++) {
+                const columns = lines[i].trim().split(',');
+                if (columns.length < header.length) {
+                    continue;
+                }
+                const tlsValue = columns[tlsIndex].toUpperCase();
+                const speedValue = parseFloat(columns[speedIndex]);
+                if (tlsValue === tls && speedValue > sl) {
+                    const ipAddress = columns[ipAddressIndex];
+                    const port = columns[portIndex];
+                    const dataCenter = columns[dataCenterIndex];
+                    newAddressesCsv.push(`${ipAddress}:${port}#${dataCenter}${suffixText}`);
+                }
+            }
+        } catch (error) {
+            errorLogs('Error processing CSV URL:', csvUrl, error);
+        }
+    });
+
+    await Promise.all(fetchCsvPromises);
+    log(`newAddressesCsv: ${newAddressesCsv} \n `);
+    return newAddressesCsv;
+}
+
+const meta = decodeBase64Utf8('PG1ldGEgbmFtZT0nZGVzY3JpcHRpb24nIGNoYXJzZXQ9J1VURi04JyBjb250ZW50PSdUaGlzIGlzIGEgcHJvamVjdCB0byBnZW5lcmF0ZSBmcmVlIHhodHRwL3ZsZXNzL3Ryb2phbiBub2Rlcy4gRm9yIG1vcmUgaW5mb3JtYXRpb24sIHBsZWFzZSBzdWJzY3JpYmUgeW91dHViZSjmlbDlrZflpZfliKkpIGh0dHBzOi8veW91dHViZS5jb20vQGFtX2NsdWJzIGFuZCBmb2xsb3cgR2l0SHViIGh0dHBzOi8vZ2l0aHViLmNvbS9hbWNsdWJzIGFuZCBmb2xsb3cgdGVsZWdyYW0gaHR0cHM6Ly90Lm1lL0FNX0NMVUJTICBhbmQgZm9sbG93ICBCbG9nIGh0dHBzOi8vYW1jbHVic3MuY29tJyAvPg==');
+function getConfigHtml(host, remark, v2, clash) {
+    log(`------------getConfigHtml------------------`);
+    log(`id: ${id} \n host: ${host} \n remark: ${remark} \n v2: ${v2} \n clash: ${clash} `);
+    const title = decodeBase64Utf8(fileName);
+    const fullTitle = title + '-订阅器';
+
+    const htmlHead = `
         <head>
-        <meta charset="UTF-8">
         <title>${fullTitle}</title>
+        ${meta}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #5563de, #89f7fe);
-            color: #333;
-        }
-
-        .login-container {
-            background: #fff;
-            padding: 30px 25px;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            width: 400px;
-            text-align: center;
-            animation: fadeIn 0.6s ease-in-out;
-        }
-
-        h1 { font-size: 24px; margin-bottom: 20px; color: #4A4A4A; }
-
-        input[type="text"], input[type="password"], textarea {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        button {
-            margin-top: 20px;
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: none;
-            background-color: #4CAF50;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        button:hover { background-color: #45a049; }
-
-        #saveStatus { margin-top: 15px; font-weight: bold; color: green; }
-
-        .links { margin-top: 15px; font-size: 14px; }
-        .link-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .link-row a {
-            flex: 1;
-            margin: 0 5px;
-            padding: 6px 0;
-            color: #5563DE;
-            text-decoration: none;
-            text-align: center;
-            border-radius: 6px;
-            background: #f1f3ff;
-            transition: all 0.3s;
-        }
-        .link-row a:hover { background: #e0e4ff; color: #333; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+                color: #333;
+                padding: 0;
+                margin: 0;
+                font-size: clamp(14px, 2.5vw, 18px);
+            }
+            a {
+                text-decoration: none;
+            }
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+            pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                padding: 10px;
+                border-radius: 8px;
+                font-size: clamp(12px, 2.2vw, 16px);
+            }
+            .link-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr; 
+                gap: 14px 20px;                
+                width: 100%;
+                margin: 0 auto;
+                padding: 0 0;                
+                box-sizing: border-box;
+            }
+            .link-row a, button {
+                display: block;
+                width: 100%;
+                text-align: center;
+                padding: 12px 0;
+                border-radius: 8px;
+                font-weight: bold;
+                cursor: pointer;
+                border: none;
+                transition: all 0.3s;
+                background: linear-gradient(135deg, #5563DE, #3344cc);
+                color: #fff;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                font-size: clamp(13px, 2.5vw, 16px);
+            }
+            .link-row a:hover, button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+                background: linear-gradient(135deg, #3344cc, #223399);
+            }
+            @media (max-width: 600px) {
+                .link-row {
+                    grid-template-columns: 1fr 1fr; /* 仍两列 */
+                    gap: 10px;
+                }
+                .link-row a, button {
+                    font-size: 0.95rem;
+                }
+            }
+            @media (max-width: 340px) {
+                .link-row {
+                    grid-template-columns: 1fr;
+                }
+            }
+            @media (prefers-color-scheme: dark) {
+                body {
+                    background-color: #1e1e2f;
+                    color: #f0f0f0;
+                }
+                pre {
+                    background-color: #282a36;
+                    border-color: #6272a4;
+                }
+            }
         </style>
         </head>
-        <body>
-        <div class="login-container">
-        <h1>${heading}</h1>
-        ${bodyContent}
+        `;
+
+    const header = `
         <div class="links">
             <div class="link-row">
                 <a href="${ytName}" target="_blank">🎬 YouTube</a>
                 <a href="${tgName}" target="_blank">💬 Telegram</a>
-            </div>
-            <div class="link-row">
                 <a href="${ghName}" target="_blank">📂 GitHub</a>
                 <a href="${bName}" target="_blank">🌐 Blog</a>
+                <a href="https://${host}/${id}/ips" rel="noopener">⚡ 在线优选IP</a>
+                <a href="https://${host}/${id}/setting" rel="noopener">⚙️ 自定义设置</a>
             </div>
         </div>
+  `;
+
+    const httpAddr = `https://${host}/${id}`;
+    const output = cleanLines(`
+        订阅地址支持 Base64、clash-meta、sing-box、Quantumult X、小火箭、surge 等订阅工具
+        #########################################################
+        通用订阅地址:${httpAddr}?sub<button onclick='copyToClipboard("${httpAddr}?sub")'><i class="fa fa-clipboard"></i>📋点击复制</button>
+        #########################################################
+        `);
+    const output2 = cleanLines(`
+        <div id="moreSection" style="display:none; margin-top:10px;">
+            <pre>
+            #########################################################
+            clash订阅地址:${httpAddr}?clash<button onclick='copyToClipboard("${httpAddr}?clash")'><i class="fa fa-clipboard"></i>📋点击复制</button>
+            #########################################################
+            singbox订阅地址:${httpAddr}?singbox<button onclick='copyToClipboard("${httpAddr}?singbox")'><i class="fa fa-clipboard"></i>📋点击复制</button>
+            #########################################################
+            v2
+            ${v2}
+            #########################################################
+            clash
+            ${clash}
+            #########################################################
+            </pre>
         </div>
+    `);
+    const openSection = enableOpen ? `
+        <pre>${output}</pre>
+        <div style="text-align:center; margin-top:10px;">
+            <button id="toggleBtn" onclick="toggleMore()">📂 展开查看更多</button>
+        </div>
+        ${output2}
+    ` : '';
+
+    const html = `
+        <html>
+        ${htmlHead}
+        <body>
+            ${header}
+            ${openSection}
+            <script>
+                function copyToClipboard(text) {
+                    navigator.clipboard.writeText(text)
+                    .then(() => alert("Copied to clipboard"))
+                    .catch(err => console.error("Failed to copy:", err));
+                }
+
+                function toggleMore() {
+                    const section = document.getElementById("moreSection");
+                    const btn = document.getElementById("toggleBtn");
+                    if (section.style.display === "none") {
+                        section.style.display = "block";
+                        btn.textContent = "📁 收起内容";
+                    } else {
+                        section.style.display = "none";
+                        btn.textContent = "📂 展开查看更多";
+                    }
+                }
+            </script>
+
         </body>
+        </html>
+        `;
+    return html;
+}
+
+function cleanLines(str) {
+    return str
+        .split('\n')
+        .map(line => line.trimEnd())
+        .map(line => line.replace(/^\s+/, ''))
+        .filter((line, i, arr) => {
+            if (i === 0 || i === arr.length - 1) {
+                return line.trim() !== '';
+            }
+            return true;
+        })
+        .join('\n');
+}
+
+
+/** -------------------Home page-------------------------------- */
+async function getSettingHtml(host) {
+    const title = decodeBase64Utf8(fileName);
+    const fullTitle = title + '-自定义设置';
+
+    return `
+    <html>
+    <head>
+    <title>${fullTitle}</title>
+    ${meta}
+    <style>
+        :root {
+            --primary: #5563DE;
+            --primary-hover: #3344cc;
+            --bg-light: linear-gradient(135deg, #f8faff, #eef1ff);
+            --bg-dark: linear-gradient(135deg, #1e1e2f, #2a2a3f);
+            --card-bg-light: #ffffff;
+            --card-bg-dark: #2b2b3b;
+            --text-light: #333;
+            --text-dark: #f0f0f0;
+            --border-light: #ddd;
+            --border-dark: #444;
+            --link-bg: #f0f0f0;
+            --link-bg-dark: #3a3a4a;
+            --link-color: #111;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: var(--bg-light);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            transition: background 0.5s, color 0.5s;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: var(--bg-dark);
+                color: var(--text-dark);
+            }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 650px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.3s, transform 0.2s;
+        }
+
+        .back-btn:hover {
+            color: var(--primary-hover);
+            transform: translateX(-2px);
+        }
+
+        .navbar-right a {
+            margin-left: 12px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 500;
+            transition: color 0.3s;
+            font-size: 14px;
+        }
+
+        .navbar-right a:hover {
+            color: var(--primary-hover);
+        }
+
+        form {
+            background: var(--card-bg-light);
+            padding: 15px 15px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            transition: background 0.5s, box-shadow 0.3s;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            form {
+                background: var(--card-bg-dark);
+                box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+            }
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 6px 8px;
+            margin-top: 2px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-size: 13px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #f9faff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            input, select {
+                background: #3a3a4a;
+                border: 1px solid var(--border-dark);
+                color: var(--text-dark);
+            }
+            input:focus, select:focus {
+                background: #46465a;
+            }
+        }
+
+        .form-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-title .icon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        #generatedLink {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--link-bg);
+            color: var(--link-color);
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            word-break: break-all;
+            }
+
+        @media (prefers-color-scheme: dark) {
+            #generatedLink {
+                background: var(--link-bg-dark);
+                color: #fff;
+            }
+        }
+
+        #generatedLink button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 2px 6px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #generatedLink button:hover {
+            background: var(--primary-hover);
+        }
+
+        button.save-btn {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+            margin-top: 4px;
+        }
+
+        button.save-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button.save-btn:active {
+            transform: translateY(1px);
+            }
+            .error-msg {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 2px;
+            margin-bottom: 4px;
+        }
+
+    </style>
+    </head>
+    <body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <button class="back-btn" onclick="goHome()">🏠 返回主页</button>
+            </div>
+            <div class="navbar-right">
+                <a href="https://youtube.com/@am_clubs?sub_confirmation=1" target="_blank">🎬 YouTube</a>
+                <a href="https://t.me/am_clubs" target="_blank">💬 Telegram</a>
+                <a href="https://github.com/am-cf-tunnel" target="_blank">📂 GitHub</a>
+                <a href="https://amclubss.com" target="_blank">🌐 Blog</a>
+            </div>
+        </div>
+
+        <form id="configForm">
+        <h2 class="form-title"><span class="icon">⚙️</span> 自定义设置</h2>
+
+        <div id="generatedLink" style="display:none;">
+            <span id="linkText"></span>
+            <button type="button" onclick="copyLink()">复制</button>
+        </div>
+
+        <label>UUID</label>
+        <input type="text" id="UUID" name="HOUUIDST" placeholder="必填：UUID (例如：d0298536-d670-4045-bbb1-ddd5ea68683e)" />
+
+        <label>HOST</label>
+        <input type="text" id="HOST" name="HOST" placeholder="必填：Cloudflare节点域名 (例如：vless.amclubss.com)" />
+
+        <label>IP_URL</label>
+        <input type="text" id="IP_URL" name="IP_URL" placeholder="可选：优先IP地址 (例如：https://raw.github.../ipUrl.txt)" />
+
+        <label>PROXYIP</label>
+        <input type="text" id="PROXYIP" name="PROXYIP" placeholder="可选：反代IP或域名或地址 (例如：proxyip.amclubs.kozow.com)" />
+
+        <label>SOCKS5</label>
+        <input type="text" id="SOCKS5" name="SOCKS5" placeholder="可选：SOCKS5代理 (例如：socks5://user:pass@ip:port)" />
+
+        <label>SUB_CONFIG</label>
+        <input type="text" id="SUB_CONFIG" name="SUB_CONFIG" placeholder="可选：订阅转换配置文件 (例如：https://raw.github.../ACL4SSR_Online_Mini.ini)" />
+        <label>SUB_CONVERTER</label>
+        <input type="text" id="SUB_CONVERTER" name="SUB_CONVERTER" placeholder="可选：订阅转换后端api地址 (例如：url.v1.mk)" />
+
+        <label>NAT64_PREFIX</label>
+        <input type="text" id="NAT64_PREFIX" name="NAT64_PREFIX" placeholder="可选：NAT64前缀 (例如：2602:fc59:b0:64::)" />
+        <label>NAT64</label>
+        <select id="NAT64" name="NAT64">
+            <option value="true">启用</option>
+            <option value="false">关闭</option>
+        </select>
+
+        <label>PROT_TYPE</label>
+        <select id="PROT_TYPE" name="PROT_TYPE">
+            <option value="">默认</option>
+            <option value="vless">vless</option>
+            <option value="trojan">trojan</option>
+        </select>
+
+        <label>HOST_REMARK</label>
+        <input type="text" id="HOST_REMARK" name="HOST_REMARK" placeholder="可选：默认是节点IP，所有节点别名" />
+
+        <button type="button" class="save-btn" onclick="saveSettings()">💾 生成链接</button>
+        </form>
+    </div>
+
+    <script>
+        function goHome() {
+            window.location.href = '/${id}';
+        }
+
+        function saveSettings() {
+        const uuid = document.getElementById('UUID').value.trim();
+        const hostInput = document.getElementById('HOST').value.trim();
+        document.querySelectorAll('.error-msg').forEach(el => el.remove());
+        let hasError = false;
+        if (!uuid) {
+            showError('UUID', '请填写 UUID');
+            hasError = true;
+        }
+        if (!hostInput) {
+            showError('HOST', '请填写 HOST');
+            hasError = true;
+        }
+        if (hasError) return; 
+
+        const params = new URLSearchParams();
+        ['UUID','HOST','IP_URL','PROXYIP','SOCKS5','SUB_CONFIG','SUB_CONVERTER','HOST_REMARK','PROT_TYPE','NAT64','NAT64_PREFIX'].forEach(k => {
+            const val = document.getElementById(k).value.trim();
+            if (val) params.append(k, val);
+        });
+
+        const link = \`https://${host}/${id}?sub&\` + params.toString();
+        const linkDiv = document.getElementById('generatedLink');
+        const linkText = document.getElementById('linkText');
+        linkText.textContent = link;
+        linkDiv.style.display = 'flex';
+        }
+
+        function showError(fieldId, message) {
+        const input = document.getElementById(fieldId);
+        const error = document.createElement('div');
+        error.className = 'error-msg';
+        error.textContent = message;
+        input.insertAdjacentElement('afterend', error);
+        }
+
+        function copyLink() {
+        const linkText = document.getElementById('linkText').textContent;
+        navigator.clipboard.writeText(linkText).then(() => {
+            alert('链接已复制到剪贴板');
+        });
+        }
+    </script>
+    </body>
+    </html>
+    `;
+}
+
+async function login(req, env, res = null) {
+    const method = req.method || (req instanceof Request ? req.method : 'GET');
+
+    const renderLoginPage = (heading, status = 200) => {
+        const html = renderPage({
+            base64Title: pName,
+            suffix: '-登录',
+            heading,
+            bodyContent: `
+                <form method="POST">
+                    <input type="password" name="password" placeholder="输入访问密码" required />
+                    <button type="submit">登录</button>
+                </form>
+            `,
+            ytName, tgName, ghName, bName
+        });
+        if (res && typeof res.setHeader === 'function') {
+            res.setHeader("Content-Type", "text/html; charset=UTF-8");
+            if (typeof res.status === 'function') {
+                res.status(status).send(html);
+            } else {
+                res.write(html);
+                res.end();
+            }
+            return;
+        }
+        return new Response(html, { status, headers: { "Content-Type": "text/html; charset=UTF-8" } });
+    };
+
+    log(`[LOGIN] → method: ${method}`);
+    if (method === "GET") return renderLoginPage('🔐 请输入密码登录');
+
+    if (method === "POST") {
+        let body = '';
+        if (req instanceof Request) {
+            body = await req.text();
+        } else if (req.on) {
+            await new Promise(resolve => {
+                req.on('data', chunk => { body += chunk.toString(); });
+                req.on('end', resolve);
+            });
+        }
+
+        const params = new URLSearchParams(body);
+        const inputPassword = params.get("password")?.trim();
+        log(`[LOGIN] → POST 输入密码: "${inputPassword}"`);
+
+        if (inputPassword === id) {
+            log(`[LOGIN] → 密码正确`);
+            if (!uuid || !host) {
+                return renderLoginPage(`❌ UUID或HOST变量未设置`, 400);
+            }
+            log(`[LOGIN] → 跳转到 id=${id}`);
+            return redirectToId(id, req, res);
+        } else {
+            log(`[LOGIN] → 密码错误`);
+            return renderLoginPage('❌ 密码错误，请重新尝试', 403);
+        }
+    }
+    return renderLoginPage('Method Not Allowed', 405);
+}
+
+async function redirectToId(id, req, res = null) {
+    if (!id) id = 'default';
+
+    const envType = (typeof process !== 'undefined' && process.release?.name === 'node') ? 'Node/Vercel' :
+        (typeof WebSocketPair !== 'undefined' && typeof addEventListener === 'function') ? 'Cloudflare Worker' :
+            'Unknown';
+
+    log(`[redirectToId] → id: ${id}, env: ${envType}, req.url: ${req.url}`);
+
+    // Node / Vercel
+    if (res) {
+        log(`[redirectToId] → Node/Vercel 重定向到 /${id}`);
+        res.writeHead(302, { Location: `/${id}` });
+        res.end();
+        return { status: 302, text: async () => '' }; // 返回对象，防止 mainHandler crash
+    }
+
+    // Edge / CF Worker
+    const fullUrl = new URL(req.url, `https://${req.headers.get('host') || 'localhost'}`);
+    log(`[redirectToId] → CF Worker 重定向到 ${fullUrl.origin}/${id}`);
+    return Response.redirect(`${fullUrl.origin}/${id}`, 302);
+}
+
+function renderPage({ base64Title, suffix = '', heading, bodyContent, ytName, tgName, ghName, bName }) {
+    const title = decodeBase64Utf8(base64Title);
+    const fullTitle = title + suffix;
+
+    return `<!DOCTYPE html>
+    <html lang="zh-CN">
+    <head>
+    <meta charset="UTF-8">
+    <title>${fullTitle}</title>
+    <style>
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: linear-gradient(135deg, #5563de, #89f7fe);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        color: #333;
+    }
+    .login-container {
+        background: #fff;
+        padding: 35px 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        width: 380px;
+        text-align: center;
+        animation: fadeIn 0.6s ease-in-out;
+    }
+    h1 { font-size: 22px; margin-bottom: 20px; color: #444; }
+    input[type="password"] {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        margin-top: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+    button {
+        margin-top: 20px;
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border: none;
+        background-color: #5563de;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+    button:hover { background-color: #3344cc; }
+    .links { margin-top: 20px; font-size: 14px; }
+    .link-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .link-row a {
+        flex: 1;
+        margin: 0 5px;
+        padding: 6px 0;
+        color: #5563DE;
+        text-decoration: none;
+        text-align: center;
+        border-radius: 6px;
+        background: #f1f3ff;
+        transition: all 0.3s;
+    }
+    .link-row a:hover { background: #e0e4ff; color: #333; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-color-scheme: dark) {
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #30324a);
+            color: #f0f0f0;
+        }
+        .login-container { background: #2b2b3c; color: #eee; }
+        input[type="password"] {
+            background: #3a3a4d; color: #fff; border-color: #555;
+        }
+        button { background-color: #6b74e6; }
+        .link-row a { background: #3a3a4d; color: #9db4ff; }
+        .link-row a:hover { background: #4b4b6a; }
+    }
+    </style>
+    </head>
+    <body>
+    <div class="login-container">
+    <h1>${heading}</h1>
+    ${bodyContent}
+    <div class="links">
+        <div class="link-row">
+            <a href="${ytName}" target="_blank">🎬 YouTube</a>
+            <a href="${tgName}" target="_blank">💬 Telegram</a>
+        </div>
+        <div class="link-row">
+            <a href="${ghName}" target="_blank">📂 GitHub</a>
+            <a href="${bName}" target="_blank">🌐 Blog</a>
+        </div>
+    </div>
+    </div>
+    </body>
     </html>`;
+}
+
+
+/** -------------------ips rtt-------------------------------- */
+async function getNipHost(defaultHost) {
+    const fallbackHost = base64Decode('NTUzNTU4Lnh5eg==');
+    const rand = Math.random().toString(36).slice(2, 8);
+    const sd = rand;
+    const testUrl = `https://${sd}.${defaultHost}/cdn-cgi/trace?t=${Date.now()}`;
+    async function fetchWithTimeout(url, timeout = 3000) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
+        try {
+            const res = await fetch(url, { method: 'HEAD', signal: controller.signal });
+            return res;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+    try {
+        const res = await fetchWithTimeout(testUrl, 3000);
+        if (res.ok) {
+            log(`[NIP]: ${defaultHost} (${sd})`);
+            return defaultHost;
+        } else {
+            log(`[NIP] returned ${res.status}, using fallback`);
+            return fallbackHost;
+        }
+    } catch (err) {
+        errorLogs(`[NIP] unreachable (${err.name}: ${err.message}), fallback to ${fallbackHost}`);
+        return fallbackHost;
+    }
+}
+
+async function fetchTextOrDefault(url, fallback = '') {
+    try {
+        const res = await fetch(url, { cf: { cacheEverything: true } });
+        if (!res.ok) return fallback;
+        return await res.text();
+    } catch {
+        return fallback;
+    }
+}
+
+function ipToInt(ip) {
+    return ip.split('.').reduce((acc, n) => (acc << 8) + parseInt(n, 10), 0) >>> 0;
+}
+
+function intToIp(int) {
+    return [
+        (int >>> 24) & 0xff,
+        (int >>> 16) & 0xff,
+        (int >>> 8) & 0xff,
+        int & 0xff,
+    ].join('.');
+}
+
+let basePadd = '\u0068\u0074\u0074\u0070\u0073\u003a\u002f\u002f\u0072\u0061\u0077\u002e\u0067\u0069\u0074\u0068\u0075\u0062\u0075\u0073\u0065\u0072\u0063\u006f\u006e\u0074\u0065\u006e\u0074\u002e\u0063\u006f\u006d\u002f\u0061\u006d\u0063\u006c\u0075\u0062\u0073\u002f\u0061\u006d\u002d\u0063\u0066\u002d\u0074\u0075\u006e\u006e\u0065\u006c\u002f\u006d\u0061\u0069\u006e\u002f\u0065\u0078\u0061\u006d\u0070\u006c\u0065\u002f\u0070\u0072\u006f\u0078\u0079\u0069\u0070\u005f\u0061\u006d\u002e\u0074\u0078\u0074';
+async function loadIpSource(ipSource, targetPort) {
+    async function fetchAsnPrefixes(asn) {
+        log(`fetchAsnPrefixes-->asn: `, asn);
+        const ipverseUrl = `\u0068\u0074\u0074\u0070\u0073\u003a\u002f\u002f\u0072\u0061\u0077\u002e\u0067\u0069\u0074\u0068\u0075\u0062\u0075\u0073\u0065\u0072\u0063\u006f\u006e\u0074\u0065\u006e\u0074\u002e\u0063\u006f\u006d\u002f\u0069\u0070\u0076\u0065\u0072\u0073\u0065\u002f\u0061\u0073\u006e\u002d\u0069\u0070\u002f\u006d\u0061\u0073\u0074\u0065\u0072\u002f\u0061\u0073\u002f${asn}\u002f\u0069\u0070\u0076\u0034\u002d\u0061\u0067\u0067\u0072\u0065\u0067\u0061\u0074\u0065\u0064\u002e\u0074\u0078\u0074`;
+        let text = await fetchTextOrDefault(ipverseUrl, '');
+        if (text && text.trim()) {
+            log(`fetchAsnPrefixes-->fetchTextOrDefault: `, text.trim());
+            return text.trim();
+        }
+        try {
+            const apiUrl = `\u0068\u0074\u0074\u0070\u0073\u003a\u002f\u002f\u0061\u0070\u0069\u002e\u0062\u0067\u0070\u0076\u0069\u0065\u0077\u002e\u0069\u006f\u002f\u0061\u0073\u006e\u002f${asn}\u002f\u0070\u0072\u0065\u0066\u0069\u0078\u0065\u0073`;
+            const resp = await fetch(apiUrl);
+            if (!resp.ok) throw new Error('BGPView fetch failed');
+            const data = await resp.json();
+            if (data?.data?.ipv4_prefixes?.length) {
+                log(`fetchAsnPrefixes-->bgpview: `, data.data.ipv4_prefixes.map(p => p.prefix).join('\n'));
+                return data.data.ipv4_prefixes.map(p => p.prefix).join('\n');
+            }
+        } catch (e) {
+            errorLogs(`Fallback BGPView failed for ASN ${asn}:`, e);
+        }
+        const defaultTxt = cleanLines(
+            `173.245.48.0/20
+            103.21.244.0/22
+            103.22.200.0/22
+            103.31.4.0/22
+            141.101.64.0/18
+            108.162.192.0/18
+            190.93.240.0/20
+            188.114.96.0/20
+            197.234.240.0/22
+            198.41.128.0/17
+            162.158.0.0/15
+            104.16.0.0/13
+            104.24.0.0/14
+            172.64.0.0/13
+            131.0.72.0/22`);
+        log(`fetchAsnPrefixes-->defaultTxt: `, defaultTxt);
+        return defaultTxt;
+    }
+
+    function sampleFromCidrs(cidrInput, count = 1) {
+        const cidrList = Array.isArray(cidrInput) ? cidrInput : cidrInput.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+        const ipToInt = (ip) => ip.split('.').reduce((acc, octet) => (acc << 8) | Number(octet), 0) >>> 0;
+        const intToIP = (int) => `${(int >>> 24) & 255}.${(int >>> 16) & 255}.${(int >>> 8) & 255}.${int & 255}`;
+        const ranges = [];
+        let totalWeight = 0;
+
+        for (const cidr of cidrList) {
+            if (!cidr.includes('/')) continue;
+            const [network, prefixStr] = cidr.split('/');
+            const prefix = Number(prefixStr);
+            if (isNaN(prefix) || prefix < 0 || prefix > 32) continue;
+            const networkInt = ipToInt(network);
+            const hostBits = 32 - prefix;
+            const numHosts = (1 << hostBits) - 2;
+            if (numHosts <= 0) continue;
+            ranges.push({ networkInt, numHosts });
+            totalWeight += numHosts;
+        }
+
+        if (ranges.length === 0) return [];
+        const sampled = new Set();
+
+        while (sampled.size < count) {
+            let pick = Math.random() * totalWeight;
+            let chosenRange;
+            for (const range of ranges) {
+                pick -= range.numHosts;
+                if (pick <= 0) {
+                    chosenRange = range;
+                    break;
+                }
+            }
+            const offset = 1 + Math.floor(Math.random() * chosenRange.numHosts);
+            sampled.add(intToIP(chosenRange.networkInt + offset));
+            if (sampled.size >= totalWeight) break;
+        }
+        return Array.from(sampled);
+    }
+
+    if (ipSource === 'official') {
+        const cfText = await fetchTextOrDefault('https://www.cloudflare.com/ips-v4/', '');
+        return sampleFromCidrs(cfText, DEFAULT_TARGET_COUNT);
+    }
+    if (ipSource === 'proxyip' || ipSource === 'extraip' || ipSource === 'extraipProxy') {
+        if (ipSource === 'extraip') {
+            basePadd = extraIp;
+        } else if (ipSource === 'extraipProxy') {
+            basePadd = extraIpProxy;
+        }
+        const raw = await fetchTextOrDefault(basePadd, '');
+        const validIps = raw.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'))
+            .map(l => {
+                const m = l.match(/(\d+\.\d+\.\d+\.\d+)/);
+                return m ? m[1] : null;
+            }).filter(Boolean);
+        if (validIps.length > DEFAULT_TARGET_COUNT) {
+            const shuffled = validIps.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, DEFAULT_TARGET_COUNT);
+        }
+        return validIps;
+    }
+    const cidrText = await fetchAsnPrefixes(ipSource);
+    return sampleFromCidrs(cidrText, DEFAULT_TARGET_COUNT);
+}
+
+/** -------------------ips rtt kv-------------------------------- */
+async function cfKvRestPut(env, key, value) {
+    const namespaceId = getEnvVar("CF_NAMESPACE_ID", env);
+    const accountId = getEnvVar("CF_ACCOUNT_ID", env);
+    const email = getEnvVar("CF_EMAIL", env);
+    const apiKey = getEnvVar("CF_API_KEY", env);
+    const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key)}`;
+
+    const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+            "X-Auth-Email": email,
+            "X-Auth-Key": apiKey,
+            "Content-Type": "text/plain"
+        },
+        body: value
+    });
+    const data = await res.json();
+    if (!data.success) {
+        throw new Error(JSON.stringify(data));
+    }
+}
+
+async function cfKvRestGet(env, key) {
+    const namespaceId = getEnvVar("CF_NAMESPACE_ID", env);
+    const accountId = getEnvVar("CF_ACCOUNT_ID", env);
+    const email = getEnvVar("CF_EMAIL", env);
+    const apiKey = getEnvVar("CF_API_KEY", env);
+    const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key)}`;
+
+    const res = await fetch(url, {
+        method: "GET",
+        headers: {
+            "X-Auth-Email": email,
+            "X-Auth-Key": apiKey
+        }
+    });
+    if (res.status === 404) return null;
+    return await res.text();
+}
+
+async function saveToKV(env, key, value) {
+    if (isCloudflareRuntime(env)) {
+        if (!env.ips || typeof env.ips.put !== "function") {
+            throw new Error("Cloudflare KV binding 'ips' not found");
+        }
+        await env.ips.put(key, value);
+    } else {
+        await cfKvRestPut(env, key, value);
+    }
+}
+
+async function loadFromKV(env, key) {
+    try {
+        if (isCloudflareRuntime(env)) {
+            if (!env.ips || typeof env.ips.get !== "function") {
+                return null;
+            }
+            return await env.ips.get(key);
+        }
+        return await cfKvRestGet(env, key);
+    } catch (e) {
+        return null;
+    }
+}
+
+async function appendToKV(env, key, appendText) {
+    const existing = await loadFromKV(env, key);
+    const existingArr = existing ? existing.split('\n').map(v => v.trim()).filter(v => v) : [];
+    const appendArr = appendText.split('\n').map(v => v.trim()).filter(v => v);
+    const mergedArr = Array.from(new Set([...existingArr, ...appendArr]));
+    const merged = mergedArr.join('\n');
+    return await saveToKV(env, key, merged);
+}
+
+/** -------------------ips rtt html-------------------------------- */
+function htmlPage() {
+    const title = decodeBase64Utf8(fileName);
+    const fullTitle = title + '-在线优选IP';
+
+    return `<!doctype html>
+    <html lang="zh-CN">
+    <head>
+    <title>${fullTitle}</title>
+    ${meta}
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Cloudflare IP 优选延迟测试</title>
+    <style>
+    :root {
+        --bg-color: #0d1117;
+        --panel-bg: #161b22;
+        --text-color: #e6edf3;
+        --accent: #58a6ff;
+        --success: #2ea043;
+        --danger: #f85149;
+        --border: #30363d;
+    }
+
+    body {
+        margin: 0;
+        font-family: system-ui, Segoe UI, Roboto, Arial;
+        background: radial-gradient(circle at top left, #0d1117, #0b0e14);
+        color: var(--text-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .header {
+        width: 100%;
+        max-width: 1200px;
+        padding: 14px 24px;
+        margin-bottom: 24px;
+        background: linear-gradient(90deg, #0d1117, #1b222d);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--accent);
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+        box-sizing: border-box;
+        margin-left: auto; 
+        margin-right: auto;
+        text-align: center;
+        line-height: 1.6;
+        letter-spacing: 0.5px;
+    }
+
+    .section {
+        padding: 0 12px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        width: 100%;
+        max-width: 1200px;
+        margin-bottom: 20px;
+    }
+
+    .panel {
+        background: var(--panel-bg);
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        padding: 16px 20px;
+        flex: 1;
+        width: 100%;          
+        box-sizing: border-box; 
+        max-width: 580px;
+    }
+
+    .panel:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+
+    .sameHeight {
+        min-height: 240px;
+    }
+
+    /* 表单 */
+    label, select, input, button {
+        font-size: 14px;
+        margin: 4px;
+        padding: 8px 6px;
+        border-radius: 6px;
+    }
+
+    select, input {
+        border: 1px solid var(--border);
+        background: #0d1117;
+        color: var(--text-color);
+    }
+
+    button {
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+        transition: 0.2s;
+        box-shadow: 0 1px 4px rgba(88, 166, 255, 0.3);
+    }
+
+    button:hover {
+        background: #1f6feb;
+        box-shadow: 0 2px 8px rgba(88, 166, 255, 0.4);
+    }
+
+    button:disabled {
+        background: #555;
+        color: #aaa;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    /* 表格 */
+    .resultTableWrapper {
+        max-height: 200px;
+        overflow-y: auto;
+        display: block;
+    }
+
+    .resultTableWrapper table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 8px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        background: #1b212c;
+        z-index: 1;
+    }
+
+    tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    tbody tr:hover {
+        background: rgba(88, 166, 255, 0.1);
+    }
+
+    /* 进度条 */
+    #progressBar, #proxyProgressBar {
+        width: 100%;
+        height: 12px;
+        background: #30363d;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    .progressFill {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--success), #3fb950);
+        transition: width 0.25s ease;
+    }
+
+    #proxyProgressText, #progressBarText{
+        margin-top: 4px;
+        font-size: 13px;
+        color: #fff; 
+        text-align: center;
+        font-weight: 500;
+    }
+
+    /* 日志 */
+    #logPanel {
+        width: 100%;
+        max-width: 1200px;
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    #clearLog {
+        float: right;
+        background: var(--danger);
+    }
+
+    #clearLog:hover {
+        background: #da3633;
+    }
+
+    pre {
+        background: #0d1117;
+        border-radius: 6px;
+        padding: 10px;
+        overflow: auto;
+        max-height: 300px;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    /* 响应式 */
+    @media (max-width: 768px) {
+        .section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .panel {
+            width: 100%;
+            max-width: 100%;
+        }
+        button, input, select {
+            width: calc(100% - 12px);
+        }
+        .navbar {
+            justify-content: flex-start;
+            gap: 6px;
+        }
+        .navbar-right a,
+        .back-btn {
+            font-size: 13px;
+            padding: 4px 6px;
+            color: #fff;
+        }
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-size: 14px;
+        cursor: pointer;
+        transition: color 0.3s, transform 0.2s;
+        white-space: nowrap; 
+        padding: 6px 10px; 
+    }
+    .back-btn:hover {
+        color: var(--primary-hover);
+        transform: translateX(-2px);
+    }
+    .navbar {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 5px;
+        overflow-x: auto;  
+        white-space: nowrap;
+        gap: 8px;    
+        padding-bottom: 4px; 
+    }
+    .navbar::-webkit-scrollbar {
+        display: none;  
+    }
+    .navbar-left,
+    .navbar-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #fff;
+    }
+    .navbar-right a {
+        margin-left: 5px;
+        text-decoration: none;
+        color: #fff;  
+        font-weight: 500;
+        transition: color 0.3s;
+        font-size: 14px;
+    }
+    .navbar-right a:hover {
+        color: #fff;
+        opacity: 0.8; 
+    }
+  </style>
+  </head>
+  <body>
+    <div class="navbar">
+        <div class="navbar-left">
+            <button class="back-btn" onclick="goHome()">🏠 主页</button>
+        </div>
+        <div class="navbar-right">
+            <a href="https://youtube.com/@am_clubs?sub_confirmation=1" target="_blank">🎬 YouTube</a>
+            <a href="https://t.me/am_clubs" target="_blank">💬 Telegram</a>
+            <a href="https://github.com/am-cf-tunnel" target="_blank">📂 GitHub</a>
+            <a href="https://amclubss.com" target="_blank">🌐 Blog</a>
+        </div>
+    </div>
+    <span id="cf-check" style="font-size:0.9em;"></span>
+    <div class="header">☁️ Cloudflare IP 优选工具</div>
+    <!-- 第一组 -->
+    <div class="section">
+      <div class="panel sameHeight">
+        <h3>⚙️ Cloudflare在线优选IP</h3>
+        <div>
+          <label>IP 源：
+            <select id="ipSource">
+              <option value="official">Cloudflare官方</option>
+              <option value="13335">AS13335(CF)</option>
+              <option value="209242">AS209242(CF London)</option>
+              <option value="24429">AS24429(阿里云)</option>
+              <option value="35916">AS35916(MULTACOM)</option>
+              <option value="199524">AS199524(G-Core)</option>
+            </select>
+          </label>
+          <label>端口：
+            <select id="targetPort">
+              <option value="443">443</option>
+              <option value="8443">8443</option>
+              <option value="2053">2053</option>
+              <option value="2096">2096</option>
+              <option value="2087">2087</option>
+              <option value="2083">2083</option>
+            </select>
+          </label>
+          <!-- <label>并发：<input id="concurrency" value="20" size="3"></label>-->
+        </div>
+        <div>
+          <button id="testBtnNormal" >🚀 开始测试</button>
+          <button id="cancelBtnNormal" disabled>⏹️ 取消测试</button>
+          <button id="saveBtnNormal" disabled>💾 覆盖保存</button>
+          <button id="appendBtnNormal" disabled>📥 追加保存</button>
+          <button id="copyBtnNormal" disabled>📋 复制结果</button>
+          <!-- <button id="loadBtnNormal">📂 导出文件</button> -->
+        </div>
+        <div id="progressBar"><div id="progressFill" class="progressFill"></div></div>
+        <div id="progressBarText">尚未开始测试</div>
+        <div id="saveStatus" style="font-size:12px;color:#999;margin-top:10px;">
+          HKG=中国香港, TPE=中国台湾, SJC=美国圣何塞, LAX=美国洛杉矶, SEA=美国西雅图,
+          NRT=日本东京, SIN=新加坡, KIX=日本大阪, FRA=德国法兰克福, LHR=英国伦敦, SYD=澳大利亚悉尼
+        </div>
+      </div>
+
+      <div class="panel sameHeight">
+        <h3>📊 Cloudflare在线优选IP 结果</h3>
+        <div id="resultSummary">尚未测试</div>
+        <div class="resultTableWrapper" id="resultWrapper">
+          <table>
+            <thead><tr><th>#</th><th>IP</th><th>RTT(ms)</th><th>COLO</th></tr></thead>
+            <tbody id="resultTable"></tbody>
+          </table>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- 第二组 -->
+    <div class="section">
+      <div class="panel sameHeight">
+        <h3>🌐 Cloudflare在线优选反代IP</h3>
+        <div>
+          <label>反代IP源：
+            <select id="proxySource">
+              <option value="proxyip">proxyip(AM优选)</option>
+              <option value="36352">AS36352(美国)</option>
+              <option value="25820">AS25820(美国)</option>
+              <option value="25693">AS25693(美国)</option>
+              <option value="142132">AS142132(新加坡)</option>
+              <option value="51290">AS51290(英国)</option>
+              <option value="209847">AS209847(土耳其)</option>
+            </select>
+          </label>
+          <label>端口：
+            <select id="proxyTargetPort">
+              <option value="443">443</option>
+              <option value="8443">8443</option>
+              <option value="2053">2053</option>
+              <option value="2096">2096</option>
+              <option value="2087">2087</option>
+              <option value="2083">2083</option>
+            </select>
+          </label>
+          <!-- <label>并发：<input id="proxyConcurrency" value="20" size="3"></label>-->
+        </div>
+        <div>
+          <button id="testBtnProxy" >🚀 开始测试</button>
+          <button id="cancelBtnProxy" disabled>⏹️ 取消测试</button>
+          <button id="saveBtnProxy" disabled>💾 覆盖保存</button>
+          <button id="appendBtnProxy" disabled>📥 追加保存</button>
+          <button id="copyBtnProxy" disabled>📋 复制结果</button>
+          <!-- <button id="loadBtnProxy">📂 导出文件</button> -->
+        </div>
+        <div id="proxyProgressBar"><div id="proxyProgressFill" class="progressFill"></div></div>
+        <div id="proxyProgressText">尚未开始测试</div>
+        <div id="saveStatusProxy" style="font-size:12px;color:#999;margin-top:10px;">
+          HKG=中国香港, TPE=中国台湾, SJC=美国圣何塞, LAX=美国洛杉矶, SEA=美国西雅图,
+          NRT=日本东京, SIN=新加坡, KIX=日本大阪, FRA=德国法兰克福, LHR=英国伦敦, SYD=澳大利亚悉尼
+        </div>
+      </div>
+
+      <div class="panel sameHeight">
+        <h3>📊 Cloudflare在线优选反代IP 结果</h3>
+        <div id="proxyResultSummary">尚未测试</div>
+        <div class="resultTableWrapper" id="proxyResultWrapper">
+          <table>
+            <thead><tr><th>#</th><th>IP</th><th>RTT(ms)</th><th>COLO</th></tr></thead>
+            <tbody id="proxyResultTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 日志 
+    <div class="panel" id="logPanel">
+      <h3>🧾 测试日志 <button id="clearLog">🧹 清空日志</button></h3>
+      <pre id="log"></pre>
+    </div>
+    -->
+
+    <script>${pageLogic()}</script>
+  </body>
+  </html>`;
+}
+
+function pageLogic() {
+    return `
+    const extraValue = "${extraIp || ''}";
+    if (extraValue) {
+        const select = document.getElementById("ipSource");
+        const option = document.createElement("option");
+        option.value = 'extraip';
+        option.textContent = '自定义源';
+        select.appendChild(option);
+    }
+
+    const extraValueProxy = "${extraIpProxy || ''}";
+    if (extraValueProxy) {
+        const selectProxy = document.getElementById("proxySource");
+        const optionProxy = document.createElement("option");
+        optionProxy.value = 'extraipProxy';
+        optionProxy.textContent = '自定义反代源';
+        selectProxy.appendChild(optionProxy);
+    }
+
+    let cancelRequested = false;
+    //✅ 存所有未完成请求
+    let activeControllers = []; 
+    //✅ 页面加载完毕后绑定事件
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('testBtnNormal').addEventListener('click', startTest);
+      document.getElementById('testBtnProxy').addEventListener('click', startTest);
+      document.getElementById('cancelBtnNormal').addEventListener('click', cancelTest);
+      document.getElementById('cancelBtnProxy').addEventListener('click', cancelTest);
+      // document.getElementById('clearLog').addEventListener('click', () => {
+      //   document.getElementById('log').textContent = '';
+      // });
+      document.getElementById('copyBtnNormal').addEventListener('click', () => copyTop50(false));
+      document.getElementById('copyBtnProxy').addEventListener('click', () => copyTop50(true));
+      document.getElementById('saveBtnNormal').addEventListener('click', () => saveTop50(false));
+      document.getElementById('saveBtnProxy').addEventListener('click', () => saveTop50(true));
+      document.getElementById('appendBtnNormal').addEventListener('click', () => appendTop50(false));
+      document.getElementById('appendBtnProxy').addEventListener('click', () => appendTop50(true));
+    });
+    // -----------------------------------------------------------------------------//
+    async function startTest(event) {
+      const btn = event.target;
+      const isProxy = btn.id === 'testBtnProxy';
+      const ipSourceSelect = document.getElementById(isProxy ? 'proxySource' : 'ipSource');
+      const portSelect = document.querySelector(isProxy ? '#proxyTargetPort:last-of-type' : '#targetPort:first-of-type');
+      const concurrencyInput = document.getElementById(isProxy ? 'proxyConcurrency' : 'concurrency');
+      const progressFill = document.getElementById(isProxy ? 'proxyProgressFill' : 'progressFill');
+      const progressText = document.getElementById(isProxy ? 'proxyProgressText' : 'progressBarText');
+      const resultTable = document.getElementById(isProxy ? 'proxyResultTable' : 'resultTable');
+      const resultSummary = document.getElementById(isProxy ? 'proxyResultSummary' : 'resultSummary');
+      const cancelBtn = document.getElementById(isProxy ? 'cancelBtnProxy' : 'cancelBtnNormal');
+      const copyBtn = document.getElementById(isProxy ? 'copyBtnProxy' : 'copyBtnNormal');
+      const saveBtn = document.getElementById(isProxy ? 'saveBtnProxy' : 'saveBtnNormal');
+      const appendBtn = document.getElementById(isProxy ? 'appendBtnProxy' : 'appendBtnNormal');
+      
+      const selectedPort = portSelect.value;
+      const selectedIPSource = ipSourceSelect.value;
+      const ipSourceName = ipSourceSelect.options[ipSourceSelect.selectedIndex].text;
+
+      cancelBtn.disabled = false;
+      cancelRequested = false;
+      activeControllers = [];
+      btn.disabled = true;
+      btn.textContent = '加载IP列表...';
+      portSelect.disabled = true;
+      ipSourceSelect.disabled = true;
+      testResults = [];
+      displayedResults = []; 
+      showingAll = false; 
+      currentDisplayType = 'loading';
+
+      //✅ 重置
+      progressFill.style.width = '0%';
+      resultSummary.textContent = '正在加载 ' + ipSourceName + ' IP列表...';
+      const tableBody = resultTable;
+      tableBody.innerHTML = '';
+      progressText.textContent = '开始加载IP列表中...';
+      
+      //✅ 获取IP列表
+      const originalIPs = await ipsFetch(selectedIPSource, selectedPort);
+      if (!originalIPs || originalIPs.length === 0) {
+        btn.disabled = false;
+        btn.textContent = '开始延迟测试';
+        portSelect.disabled = false;
+        ipSourceSelect.disabled = false;
+        resultSummary.textContent = '加载IP列表失败，请重试';
+        return;
+      }
+      //✅ 显示加载到的IP列表（右侧表格）
+      tableBody.innerHTML = ''; 
+      const ips = Array.isArray(originalIPs) ? originalIPs : originalIPs.split('\\n');
+      ips.forEach((ip, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td>' + (i + 1) + '</td><td>' + ip + '</td><td>-</td><td>-</td>';
+        tableBody.appendChild(row);
+      });
+      resultSummary.textContent = '已加载 ips.length  个 IP，准备开始测试...';
+        
+      //✅ 开始测试
+      btn.textContent = '测试中...';
+      resultSummary.textContent = '开始测试端口 ' + selectedPort + '...';
+      currentDisplayType = 'testing';
+      progressText.textContent = '开始测试中...';
+      const results = await ipBatchTest(progressFill,progressText,tableBody, ips, selectedPort, 32);
+      //testResults = results.sort((a, b) => a.latency - b.latency);
+      
+      //✅ 显示结果
+      copyBtn.disabled = false;
+      saveBtn.disabled = false;
+      appendBtn.disabled = false;
+      currentDisplayType = 'results'; 
+      showingAll = false;
+      cancelBtn.disabled = true; 
+      btn.disabled = false;
+      btn.textContent = '重新测试';
+      portSelect.disabled = false;
+      ipSourceSelect.disabled = false;
+      testResults = results;
+      const text = ' - 有效IP: ' + testResults.length + '/' + originalIPs.length + ' (端口: ' + selectedPort + ', IP库: ' + ipSourceName + ')';
+      resultSummary.textContent = cancelRequested? '已取消' + text : '已完成'  + text;
+    }
+
+    // ✅ 批量扫描 + 最大并发控制 + 有序输出 + 可取消
+    async function ipBatchTest(progressFill, progressText, tableBody, ips, port, maxConcurrent = 32) {
+      const total = ips.length;
+      const results = new Array(total).fill(null);
+      let completed = 0;
+      let tested = 0;
+      let index = 0;
+      tableBody.innerHTML = '';
+
+      async function worker() {
+        while (!cancelRequested) {
+          const currentIndex = index++;
+          if (currentIndex >= total) break;
+          const ip = ips[currentIndex];
+          const res = await testIP(ip, port);
+          if (cancelRequested) return;
+          if (res) {
+            results[currentIndex] = res;
+            insertSortedRow(tableBody, res);
+          }
+          completed++;
+          const percent = ((completed / total) * 100).toFixed(1);
+          const valid = results.filter(Boolean).length;
+          progressText.textContent = \`测试中: \${ ip } | 完成 \${ completed }/\${total} | 有效 \${valid} (\${percent}%)\`;
+          progressFill.style.width = percent + '%';
+          if (completed % 6 === 0) await new Promise(r => setTimeout(r, 0));
+        }
+      }
+
+      const workers = Array(Math.min(maxConcurrent, total)) .fill().map(() => worker());
+      await Promise.all(workers);
+
+      if (cancelRequested) {
+          progressText.textContent = \`⏹️ 已取消测试（有效IP \${valid}/\${total}）\`;
+          return results.filter(Boolean).sort((a, b) => a.latency - b.latency);
+      }
+
+      const valid = results.filter(Boolean).length;
+      progressFill.style.width = '100%';
+      progressText.textContent = \`✅ 测试完成!(有效IP \${valid}/\${total}) \`;
+      const filtered = results.filter(Boolean).sort((a, b) => a.latency - b.latency);
+      return filtered;
+    }
+
+    // ✅ 更安全且更快的请求 + 超时封装
+    function fetchWithTimeout(url, timeout) {
+      const controller = new AbortController();
+      activeControllers.push(controller);
+      const timer = setTimeout(() => controller.abort(), timeout);
+      return fetch(url, { signal: controller.signal, mode: 'cors' })
+        .finally(() => {
+          clearTimeout(timer);
+          activeControllers = activeControllers.filter(c => c !== controller);
+        }).catch(err => null);
+    }
+
+    // ✅ 单个 IP 测试
+    async function runTest(ip, port, timeout) {
+      if (cancelRequested) return null;
+      const nip = ip.split('.') .map(n => Number(n).toString(16).padStart(2, '0')).join('');
+      const url = 'https://' + nip + '.${nipHost}:' + port + '/cdn-cgi/trace?t=${Date.now()}';
+      const start = Date.now();
+      const res = await fetchWithTimeout(url, timeout);
+      if (!res || res.status !== 200) return null;
+
+      const text = await res.text();
+      const trace = buildTrace(text);
+      if (!trace?.colo || !trace?.ip) return null;
+      const latency = Date.now() - start;
+      return {
+        ip,
+        port,
+        latency,
+        colo: trace.colo,
+        responseIP: trace.ip,
+        type: trace.ip.includes(':') || trace.ip === ip ? 'proxy' : 'official'
+      };
+    }
+
+    // ✅ 自动重试 3 次
+    async function testIP(ip, port, timeout = 5000) {
+        let lastFail = null;
+        for (let tryCount = 1; tryCount <= 3; tryCount++) {
+            if (cancelRequested) return null;
+            const result = await runTest(ip, port, timeout);
+            if (result) return result;
+            lastFail = result;
+            await new Promise(r => setTimeout(r, 150));
+        }
+        return null;
+    }
+
+    // ✅ 提取 trace 信息
+    function buildTrace(text) {
+        const obj = {};
+        text.trim().split('\\n').forEach(line => {
+            const [k, v] = line.split('=');
+            if (k && v) obj[k.trim()] = v.trim();
+        });
+        return obj;
+    }
+
+    //✅ 获取IP列表
+    async function ipsFetch(ipSource, port) {
+        try {
+            const response = await fetch(\`/ipsFetch?ipSource=\${ipSource}&port=\${port}\`, { method: 'GET'});
+            if (!response.ok) {
+                throw new Error('Failed to load IPs');
+            }
+            const data = await response.json();
+            return data.ips || [];
+        } catch (error) {
+            console.error('加载IP列表失败:', error);
+            return [];
+        }
+    }
+
+    //✅ 显示优先列表
+    function insertSortedRow(tableBody, res) {
+      if (cancelRequested) return;
+      const rows = tableBody.rows;
+      let insertIndex = rows.length;
+      for (let i = 0; i < rows.length; i++) {
+        const existingLatency = parseInt(rows[i].cells[2].textContent);
+        if (res.latency < existingLatency) {
+          insertIndex = i;
+          break;
+        }
+      }
+      const row = tableBody.insertRow(insertIndex);
+      row.insertCell().textContent = insertIndex + 1;
+      row.insertCell().textContent = res.ip;
+      row.insertCell().textContent = \`\${ res.latency } ms\`;
+      row.insertCell().textContent = res.colo || 'CF优选';
+      for (let i = 0; i < tableBody.rows.length; i++) {
+        tableBody.rows[i].cells[0].textContent = i + 1;
+      }
+      for (let i = 0; i < tableBody.rows.length; i++) {
+        if (i === 0) {
+          tableBody.rows[i].style.background = "rgba(46,160,67,0.2)";
+        } else {
+          tableBody.rows[i].style.background = "";
+        }
+      }
+    }
+
+    //✅ 取消操作
+    function cancelTest(event) {
+      cancelRequested = true;
+      activeControllers.forEach(c => {
+        try { c.abort(); } catch {}
+      });
+      activeControllers = [];
+      const isProxy = event.target.id === 'cancelBtnProxy';
+      const progressText = document.getElementById(isProxy ? 'proxyProgressText' : 'progressBarText');
+      progressText.textContent = '⏹ 已取消测试';
+      const tableBody = document.getElementById(isProxy ? 'proxyResultTable' : 'resultTable');
+      currentDisplayType = 'cancelled';
+      const testBtn = document.getElementById(isProxy ? 'testBtnProxy' : 'testBtnNormal');
+      testBtn.disabled = false;
+      testBtn.textContent = "重新测试";
+      event.target.disabled = true;
+    }
+     
+    //✅ 复制操作
+    function copyTop50(isProxy) {
+      const resultTable = document.getElementById(isProxy ? 'proxyResultTable' : 'resultTable');
+      const port = document.getElementById(isProxy ? 'proxyTargetPort' : 'targetPort').value;
+      const rows = Array.from(resultTable.rows).slice(0, 50);
+      if (rows.length === 0) {
+        alert("没有可复制的结果");
+        return;
+      }
+      const lines = rows.map(row => {
+        const ip = row.cells[1].textContent;
+        const colo = row.cells[3].textContent;
+        return \`\${ ip }:\${ port }#\${ colo }\`;
+      });
+      const textToCopy = lines.join('\\n');
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => alert("✅ 已复制前 50 个优选IP"))
+        .catch(() => alert("❌ 复制失败，请手动复制"));
+    }
+
+    //✅ KV保存操作
+    function saveTop50(isProxy) {
+      const resultTable = document.getElementById(isProxy ? 'proxyResultTable' : 'resultTable');
+      const port = document.getElementById(isProxy ? 'proxyTargetPort' : 'targetPort').value;
+      const saveStatus = document.getElementById(isProxy ? 'saveStatusProxy' : 'saveStatus');
+      const rows = Array.from(resultTable.rows).slice(0, 50);
+      if (rows.length === 0) {
+        saveStatus.style.color = '#f85149';
+        saveStatus.textContent = '⚠ 没有可保存的结果';
+        return;
+      }
+      const lines = rows.map(row => {
+        const ip = row.cells[1].textContent;
+        const colo = row.cells[3].textContent;
+        return \`\${ ip }:\${ port }#\${ colo } \`;
+      });
+      const textToSave = lines.join("\\n");
+      const key = \`cf_\${ isProxy ? "proxy" : "normal" }_ip\`;
+
+      fetch('/${id}/save', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key,
+          items: textToSave
+        })
+      })
+      .then(res => res.json())
+      .then(r => {
+        if (r.ok) {
+          saveStatus.style.color = '#2ea043'; 
+          saveStatus.textContent = \`✅ 覆盖保存成功，共 \${ lines.length } 条\`;
+        } else {
+          saveStatus.style.color = '#f85149';
+          saveStatus.textContent = \`❌ 保存失败：\${ r.error || "未知错误" } \`;
+        }
+      })
+      .catch(err => {
+        saveStatus.style.color = '#f85149';
+        saveStatus.textContent = \`❌ 保存异常：\${ err.message }\`;
+      });
+    }
+
+    //✅ KV追加操作
+    async function appendTop50(isProxy) {
+      const resultTable = document.getElementById(isProxy ? 'proxyResultTable' : 'resultTable');
+      const port = document.getElementById(isProxy ? 'proxyTargetPort' : 'targetPort').value;
+      const saveStatus = document.getElementById(isProxy ? 'saveStatusProxy' : 'saveStatus');
+      const rows = Array.from(resultTable.rows).slice(0, 50);
+      if (rows.length === 0) {
+        saveStatus.style.color = '#f85149';
+        saveStatus.textContent = "⚠ 没有可追加的数据";
+        return;
+      }
+      const lines = rows.map(row => {
+        const ip = row.cells[1].textContent.trim();
+        const colo = row.cells[3].textContent.trim();
+        return \`\${ip}:\${ port }#\${colo}\`;
+      });
+      const key = \`cf_\${ isProxy ? "proxy" : "normal" }_ip\`;
+      try {
+        const saveResp = await fetch('/${id}/append', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key, items: lines.join('\\n') })
+        });
+        const result = await saveResp.json();
+        if (result.ok) {
+          saveStatus.style.color = '#2ea043';
+          saveStatus.textContent = \`✅ 已追加并保存成功，共 \${ lines.length } 条\`;
+        } else {
+          saveStatus.style.color = '#f85149';
+          saveStatus.textContent = \`❌ 保存失败：\${ result.error || "未知错误" } \`;
+        }
+      } catch (error) {
+        saveStatus.style.color = '#f85149';
+        saveStatus.textContent = \`❌ 保存异常：\${ error.message } \`;
+      }
+    }
+
+    function goHome() {
+        window.location.href = '/${id}';
+    }
+
+     //🌐
+    async function detectProxyOrVPN() {
+        const container = document.querySelector("#cf-check") || document.body;
+        const notice = document.createElement("div");
+        notice.style.marginTop = "8px";
+        notice.style.fontSize = "0.95em";
+        container.appendChild(notice);
+
+        try {
+            const cfRes = await fetch("https://speed.cloudflare.com/cdn-cgi/trace?t=${Date.now()}");
+            const cfText = await cfRes.text();
+
+            const text = cfText.trim().split("\\n");
+            const data = {};
+            text.forEach(line => {
+                const [key, value] = line.split('=');
+                if (key && value) data[key.trim()] = value.trim();
+            });
+            const ip = data.ip || '未知';
+            const loc = data.loc || '未知';
+
+            let message = \`✅ 您当前检测为CN地区网络，可以进行优选\`;
+            let color = "limegreen";
+            // loc=CN 不一致 → 代理或 VPN
+            if (loc !== 'CN') {
+                message = \`⚠️您当前使用了 <b>代理或VPN</b> 请关闭再测试优选！(IP: \${ip})\`;
+                color = "red";
+            }
+            notice.innerHTML = message;
+            notice.style.color = color;
+        } catch (e) {
+            notice.textContent = "⚠️ 网络检测失败";
+            notice.style.color = "orange";
+        }
+    }
+    window.addEventListener("DOMContentLoaded", detectProxyOrVPN);
+    
+  `;
 }
