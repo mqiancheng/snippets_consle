@@ -192,6 +192,22 @@ async function mainHandler({ req, url, headers, res, env }) {
         const result = await login(req, env, res);
         return result;
     }
+	// 🔓 新增：给 Snippets 调用的纯文本接口
+    if (url.pathname === `/${id}/proxyip`) {
+        // 从 KV 读取，如果没有则返回默认 IP
+        const savedIPs = await env.KV_DATA.get("PROXY_IP_LIST") || "13.230.34.30:443";
+        return new Response(savedIPs, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+    }
+    
+    // 💾 新增：给 WebUI 调用的保存接口
+    if (url.pathname === `/${id}/setproxy`) {
+        if (req.method === 'POST') {
+            const newIPs = await req.text();
+            await env.KV_DATA.put("PROXY_IP_LIST", newIPs);
+            return new Response("OK");
+        }
+        return new Response("Method Not Allowed", { status: 405 });
+    }
     if (url.pathname === `/${id}/setting`) {
         const html = await getSettingHtml(rawHost);
         return sendResponse(html, userAgent, res);
@@ -1249,7 +1265,7 @@ function cleanLines(str) {
 
 /** -------------------Home page-------------------------------- */
 async function getSettingHtml(host) {
-    const title = decodeBase64Utf8(fileName);
+const title = decodeBase64Utf8(fileName);
     const fullTitle = title + '-自定义设置';
 
     return `
@@ -1342,16 +1358,17 @@ async function getSettingHtml(host) {
             color: var(--primary-hover);
         }
 
-        form {
+        form, .proxy-card {
             background: var(--card-bg-light);
             padding: 15px 15px;
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0,0,0,0.08);
             transition: background 0.5s, box-shadow 0.3s;
+            margin-bottom: 20px;
         }
 
         @media (prefers-color-scheme: dark) {
-            form {
+            form, .proxy-card {
                 background: var(--card-bg-dark);
                 box-shadow: 0 6px 15px rgba(0,0,0,0.25);
             }
@@ -1364,31 +1381,34 @@ async function getSettingHtml(host) {
             font-size: 13px;
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
-            padding: 6px 8px;
-            margin-top: 2px;
+            padding: 8px 10px;
+            margin-top: 5px;
             border: 1px solid var(--border-light);
             border-radius: 6px;
             font-size: 13px;
             box-sizing: border-box;
             transition: border-color 0.3s, background 0.3s;
+            font-family: inherit;
         }
 
-        input:focus, select:focus {
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
             background: #f9faff;
         }
 
         @media (prefers-color-scheme: dark) {
-            input, select {
+            input, select, textarea {
                 background: #3a3a4a;
                 border: 1px solid var(--border-dark);
                 color: var(--text-dark);
-            }
-            input:focus, select:focus {
-                background: #46465a;
             }
         }
 
@@ -1397,24 +1417,11 @@ async function getSettingHtml(host) {
             font-size: 18px;
             font-weight: 600;
             color: var(--primary);
-            margin: 0;
-            padding: 0;
+            margin: 0 0 10px 0;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 4px;
-        }
-
-        .form-title .icon {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 24px;
-            height: 24px;
-            background: var(--primary);
-            color: #fff;
-            border-radius: 50%;
-            font-size: 12px;
         }
 
         #generatedLink {
@@ -1428,7 +1435,7 @@ async function getSettingHtml(host) {
             border-radius: 6px;
             margin-bottom: 6px;
             word-break: break-all;
-            }
+        }
 
         @media (prefers-color-scheme: dark) {
             #generatedLink {
@@ -1447,10 +1454,6 @@ async function getSettingHtml(host) {
             cursor: pointer;
         }
 
-        #generatedLink button:hover {
-            background: var(--primary-hover);
-        }
-
         button.save-btn {
             width: 100%;
             background-color: var(--primary);
@@ -1461,24 +1464,31 @@ async function getSettingHtml(host) {
             border-radius: 6px;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.3s;
-            margin-top: 4px;
+            margin-top: 10px;
+            font-weight: bold;
         }
 
         button.save-btn:hover {
             background-color: var(--primary-hover);
-            transform: translateY(-1px);
         }
 
-        button.save-btn:active {
-            transform: translateY(1px);
+        .proxy-card {
+            border: 1px solid #ff9800;
+            background: #fffdf9 !important;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .proxy-card {
+                border: 1px solid #ff9800;
+                background: #2d2a25 !important;
             }
-            .error-msg {
+        }
+
+        .error-msg {
             color: #e74c3c;
             font-size: 12px;
             margin-top: 2px;
-            margin-bottom: 4px;
         }
-
     </style>
     </head>
     <body>
@@ -1488,60 +1498,35 @@ async function getSettingHtml(host) {
                 <button class="back-btn" onclick="goHome()">🏠 返回主页</button>
             </div>
             <div class="navbar-right">
-                <a href="https://youtube.com/@am_clubs?sub_confirmation=1" target="_blank">🎬 YouTube</a>
+                <a href="https://youtube.com/@am_clubs" target="_blank">🎬 YouTube</a>
                 <a href="https://t.me/am_clubs" target="_blank">💬 Telegram</a>
-                <a href="https://github.com/am-cf-tunnel" target="_blank">📂 GitHub</a>
-                <a href="https://amclubss.com" target="_blank">🌐 Blog</a>
             </div>
         </div>
 
-        <form id="configForm">
-        <h2 class="form-title"><span class="icon">⚙️</span> 自定义设置</h2>
-
-        <div id="generatedLink" style="display:none;">
-            <span id="linkText"></span>
-            <button type="button" onclick="copyLink()">复制</button>
+        <div class="proxy-card">
+            <h3 class="form-title" style="color: #e65100;">🛠️ Snippets 动态反代 IP 管理</h3>
+            <p style="font-size: 12px; color: #666; text-align: center; margin-bottom: 5px;">IP 将实时同步给 Snippets 脚本。一行一个。</p>
+            <textarea id="proxyInput" placeholder="例如: 13.230.34.30:443"></textarea>
+            <button type="button" class="save-btn" id="btnP" style="background:#ff9800;" onclick="saveProxy()">同步到 Snippets</button>
         </div>
 
-        <label>UUID</label>
-        <input type="text" id="UUID" name="HOUUIDST" placeholder="必填：UUID (例如：d0298536-d670-4045-bbb1-ddd5ea68683e)" />
+        <form id="configForm">
+            <h2 class="form-title"><span class="icon">⚙️</span> 自定义设置</h2>
+            <div id="generatedLink" style="display:none;">
+                <span id="linkText"></span>
+                <button type="button" onclick="copyLink()">复制</button>
+            </div>
 
-        <label>HOST</label>
-        <input type="text" id="HOST" name="HOST" placeholder="必填：Cloudflare节点域名 (例如：vless.amclubss.com)" />
+            <label>UUID</label>
+            <input type="text" id="UUID" placeholder="必填：UUID" />
 
-        <label>IP_URL</label>
-        <input type="text" id="IP_URL" name="IP_URL" placeholder="可选：优先IP地址 (例如：https://raw.github.../ipUrl.txt)" />
+            <label>HOST</label>
+            <input type="text" id="HOST" placeholder="必填：节点域名" />
 
-        <label>PROXYIP</label>
-        <input type="text" id="PROXYIP" name="PROXYIP" placeholder="可选：反代IP或域名或地址 (例如：proxyip.amclubs.kozow.com)" />
+            <label>PROXYIP</label>
+            <input type="text" id="PROXYIP" placeholder="可选：反代IP或域名" />
 
-        <label>SOCKS5</label>
-        <input type="text" id="SOCKS5" name="SOCKS5" placeholder="可选：SOCKS5代理 (例如：socks5://user:pass@ip:port)" />
-
-        <label>SUB_CONFIG</label>
-        <input type="text" id="SUB_CONFIG" name="SUB_CONFIG" placeholder="可选：订阅转换配置文件 (例如：https://raw.github.../ACL4SSR_Online_Mini.ini)" />
-        <label>SUB_CONVERTER</label>
-        <input type="text" id="SUB_CONVERTER" name="SUB_CONVERTER" placeholder="可选：订阅转换后端api地址 (例如：url.v1.mk)" />
-
-        <label>NAT64_PREFIX</label>
-        <input type="text" id="NAT64_PREFIX" name="NAT64_PREFIX" placeholder="可选：NAT64前缀 (例如：2602:fc59:b0:64::)" />
-        <label>NAT64</label>
-        <select id="NAT64" name="NAT64">
-            <option value="true">启用</option>
-            <option value="false">关闭</option>
-        </select>
-
-        <label>PROT_TYPE</label>
-        <select id="PROT_TYPE" name="PROT_TYPE">
-            <option value="">默认</option>
-            <option value="vless">vless</option>
-            <option value="trojan">trojan</option>
-        </select>
-
-        <label>HOST_REMARK</label>
-        <input type="text" id="HOST_REMARK" name="HOST_REMARK" placeholder="可选：默认是节点IP，所有节点别名" />
-
-        <button type="button" class="save-btn" onclick="saveSettings()">💾 生成链接</button>
+            <button type="button" class="save-btn" onclick="saveSettings()">💾 生成链接</button>
         </form>
     </div>
 
@@ -1550,52 +1535,70 @@ async function getSettingHtml(host) {
             window.location.href = '/${id}';
         }
 
+        // --- 逻辑 A: 处理反代 IP 的同步 ---
+        async function loadProxy() {
+            const path = window.location.pathname.replace('/setting', '/proxyip');
+            try {
+                const res = await fetch(path);
+                if (res.ok) {
+                    document.getElementById('proxyInput').value = await res.text();
+                }
+            } catch (e) {
+                console.error('加载失败');
+            }
+        }
+        loadProxy();
+
+        async function saveProxy() {
+            const btn = document.getElementById('btnP');
+            const val = document.getElementById('proxyInput').value;
+            btn.innerText = '正在同步...';
+            btn.disabled = true;
+            try {
+                const path = window.location.pathname.replace('/setting', '/setproxy');
+                const res = await fetch(path, { method: 'POST', body: val });
+                if (res.ok) alert('✅ 同步成功！');
+                else alert('❌ 失败，请确认 KV 绑定名为 KV_DATA');
+            } catch(e) {
+                alert('错误: ' + e.message);
+            } finally {
+                btn.innerText = '同步到 Snippets';
+                btn.disabled = false;
+            }
+        }
+
+        // --- 逻辑 B: 生成订阅链接 ---
         function saveSettings() {
-        const uuid = document.getElementById('UUID').value.trim();
-        const hostInput = document.getElementById('HOST').value.trim();
-        document.querySelectorAll('.error-msg').forEach(el => el.remove());
-        let hasError = false;
-        if (!uuid) {
-            showError('UUID', '请填写 UUID');
-            hasError = true;
-        }
-        if (!hostInput) {
-            showError('HOST', '请填写 HOST');
-            hasError = true;
-        }
-        if (hasError) return; 
+            const uuid = document.getElementById('UUID').value.trim();
+            const hostInput = document.getElementById('HOST').value.trim();
+            if (!uuid || !hostInput) {
+                alert('请填写 UUID 和 HOST');
+                return;
+            }
 
-        const params = new URLSearchParams();
-        ['UUID','HOST','IP_URL','PROXYIP','SOCKS5','SUB_CONFIG','SUB_CONVERTER','HOST_REMARK','PROT_TYPE','NAT64','NAT64_PREFIX'].forEach(k => {
-            const val = document.getElementById(k).value.trim();
-            if (val) params.append(k, val);
-        });
+            const params = new URLSearchParams();
+            params.append('UUID', uuid);
+            params.append('HOST', hostInput);
+            const proxyip = document.getElementById('PROXYIP').value.trim();
+            if (proxyip) params.append('PROXYIP', proxyip);
 
-        const link = \`https://${host}/${id}?sub&\` + params.toString();
-        const linkDiv = document.getElementById('generatedLink');
-        const linkText = document.getElementById('linkText');
-        linkText.textContent = link;
-        linkDiv.style.display = 'flex';
-        }
-
-        function showError(fieldId, message) {
-        const input = document.getElementById(fieldId);
-        const error = document.createElement('div');
-        error.className = 'error-msg';
-        error.textContent = message;
-        input.insertAdjacentElement('afterend', error);
+            const link = window.location.origin + '/${id}?sub&' + params.toString();
+            const linkDiv = document.getElementById('generatedLink');
+            const linkText = document.getElementById('linkText');
+            linkText.textContent = link;
+            linkDiv.style.display = 'flex';
         }
 
         function copyLink() {
-        const linkText = document.getElementById('linkText').textContent;
-        navigator.clipboard.writeText(linkText).then(() => {
-            alert('链接已复制到剪贴板');
-        });
+            const linkText = document.getElementById('linkText').textContent;
+            navigator.clipboard.writeText(linkText).then(() => {
+                alert('链接已复制');
+            });
         }
     </script>
     </body>
     </html>
-    `;
+    \`;
 }
 
 async function login(req, env, res = null) {
