@@ -20,7 +20,7 @@ let s5Enable = false;
 let pDomain = [];     
 let p64Domain = [];
 
-// --- 远程库配置 (核心配置项，githb)---
+// --- 远程库配置 (核心配置项，githb，此处修改为snipconsel的https://你的域名/你的UUID/proxyip)---
 const secretUrl = atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL21xaWFuY2hlbmcvc25pcHBldHNfY29uc2xlL3JlZnMvaGVhZHMvbWFpbi9waXAudHh0');
 
 // --- 内部状态 ---
