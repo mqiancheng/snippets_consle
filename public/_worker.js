@@ -1598,7 +1598,7 @@ async function getSettingHtml(host) {
     </script>
     </body>
     </html>
-    \`;
+    `;
 }
 
 async function login(req, env, res = null) {
